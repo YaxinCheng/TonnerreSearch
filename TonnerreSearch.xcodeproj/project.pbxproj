@@ -12,6 +12,7 @@
 		14A9F605208D006600DF3FC9 /* TonnerreSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = 14A9F5F7208D006600DF3FC9 /* TonnerreSearch.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		14A9F60F208D011B00DF3FC9 /* TonnerreIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A9F60E208D011B00DF3FC9 /* TonnerreIndex.swift */; };
 		14A9F611208D0B8100DF3FC9 /* TonnerreIndexError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A9F610208D0B8100DF3FC9 /* TonnerreIndexError.swift */; };
+		14A9F617208D211A00DF3FC9 /* TonnerreIndexOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A9F616208D211A00DF3FC9 /* TonnerreIndexOptions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,7 @@
 		14A9F604208D006600DF3FC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14A9F60E208D011B00DF3FC9 /* TonnerreIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreIndex.swift; sourceTree = "<group>"; };
 		14A9F610208D0B8100DF3FC9 /* TonnerreIndexError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreIndexError.swift; sourceTree = "<group>"; };
+		14A9F616208D211A00DF3FC9 /* TonnerreIndexOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreIndexOptions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +79,7 @@
 			children = (
 				14A9F5F7208D006600DF3FC9 /* TonnerreSearch.h */,
 				14A9F60E208D011B00DF3FC9 /* TonnerreIndex.swift */,
+				14A9F616208D211A00DF3FC9 /* TonnerreIndexOptions.swift */,
 				14A9F610208D0B8100DF3FC9 /* TonnerreIndexError.swift */,
 				14A9F5F8208D006600DF3FC9 /* Info.plist */,
 			);
@@ -201,6 +204,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14A9F617208D211A00DF3FC9 /* TonnerreIndexOptions.swift in Sources */,
 				14A9F611208D0B8100DF3FC9 /* TonnerreIndexError.swift in Sources */,
 				14A9F60F208D011B00DF3FC9 /* TonnerreIndex.swift in Sources */,
 			);
