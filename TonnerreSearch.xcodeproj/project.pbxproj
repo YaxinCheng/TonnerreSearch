@@ -10,6 +10,8 @@
 		14A9F5FE208D006600DF3FC9 /* TonnerreSearch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14A9F5F4208D006600DF3FC9 /* TonnerreSearch.framework */; };
 		14A9F603208D006600DF3FC9 /* TonnerreSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A9F602208D006600DF3FC9 /* TonnerreSearchTests.swift */; };
 		14A9F605208D006600DF3FC9 /* TonnerreSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = 14A9F5F7208D006600DF3FC9 /* TonnerreSearch.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		14A9F60F208D011B00DF3FC9 /* TonnerreIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A9F60E208D011B00DF3FC9 /* TonnerreIndex.swift */; };
+		14A9F611208D0B8100DF3FC9 /* TonnerreIndexError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A9F610208D0B8100DF3FC9 /* TonnerreIndexError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +31,8 @@
 		14A9F5FD208D006600DF3FC9 /* TonnerreSearchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TonnerreSearchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		14A9F602208D006600DF3FC9 /* TonnerreSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreSearchTests.swift; sourceTree = "<group>"; };
 		14A9F604208D006600DF3FC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		14A9F60E208D011B00DF3FC9 /* TonnerreIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreIndex.swift; sourceTree = "<group>"; };
+		14A9F610208D0B8100DF3FC9 /* TonnerreIndexError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreIndexError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +76,8 @@
 			isa = PBXGroup;
 			children = (
 				14A9F5F7208D006600DF3FC9 /* TonnerreSearch.h */,
+				14A9F60E208D011B00DF3FC9 /* TonnerreIndex.swift */,
+				14A9F610208D0B8100DF3FC9 /* TonnerreIndexError.swift */,
 				14A9F5F8208D006600DF3FC9 /* Info.plist */,
 			);
 			path = TonnerreSearch;
@@ -148,6 +154,7 @@
 				TargetAttributes = {
 					14A9F5F3208D006600DF3FC9 = {
 						CreatedOnToolsVersion = 9.3;
+						LastSwiftMigration = 0930;
 					};
 					14A9F5FC208D006600DF3FC9 = {
 						CreatedOnToolsVersion = 9.3;
@@ -194,6 +201,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14A9F611208D0B8100DF3FC9 /* TonnerreIndexError.swift in Sources */,
+				14A9F60F208D011B00DF3FC9 /* TonnerreIndex.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,6 +347,7 @@
 		14A9F609208D006600DF3FC9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -356,6 +366,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ycheng.TonnerreSearch;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -363,6 +374,7 @@
 		14A9F60A208D006600DF3FC9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -388,6 +400,7 @@
 		14A9F60C208D006600DF3FC9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = TonnerreSearchTests/Info.plist;
@@ -405,6 +418,7 @@
 		14A9F60D208D006600DF3FC9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = TonnerreSearchTests/Info.plist;
