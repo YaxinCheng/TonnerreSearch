@@ -91,7 +91,9 @@ public struct TonnerreIndex {
    - Returns: An array of URLs to the found documents
   */
   public func search(query: String, limit: Int, options: TonnerreSearchOptions..., timeLimit: Double = 1) -> [URL] {
-    let refinedQuery = options.contains(.exactSearch) ? query : query.trimmingCharacters(in: CharacterSet(charactersIn: " *")) + "*"
+    let cleanedQuery = query.trimmingCharacters(in: CharacterSet(charactersIn: " *"))
+    let fuzziedQuery = options.contains(.headingFuzzy) ? "*" + cleanedQuery : cleanedQuery
+    let refinedQuery = options.contains(.exactSearch) ? query : fuzziedQuery + "*"
     let skOptions = options.filter({$0.rawValue < 5}).map({$0.rawValue}).reduce(0, |)
     let searchQuery = SKSearchCreate(indexFile, refinedQuery as CFString, skOptions).takeRetainedValue()
     var foundDocIDs = [SKDocumentID](repeating: 0, count: limit)
@@ -102,6 +104,19 @@ public struct TonnerreIndex {
     var foundURLs = [Unmanaged<CFURL>?](repeating: nil, count: foundCount)
     SKIndexCopyDocumentURLsForDocumentIDs(indexFile, foundCount, &foundDocIDs, &foundURLs)
     return foundURLs.compactMap { $0?.takeRetainedValue() as URL? }
+  }
+  
+  /**
+   Remove a document from the index and delete all related documents
+   - Parameter atPath: the path of the file needs to be removed
+   - Returns: The result of remove
+  */
+  public func removeDocument(atPath: String) -> Bool {
+    let fileURL = URL(fileURLWithPath: atPath) as CFURL
+    guard let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue() else { return false }
+    let result = SKIndexRemoveDocument(indexFile, document)
+    SKIndexCompact(indexFile)
+    return result
   }
   
   /**

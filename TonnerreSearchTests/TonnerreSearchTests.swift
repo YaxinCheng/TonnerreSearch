@@ -117,6 +117,24 @@ class TonnerreSearchTests: XCTestCase {
     XCTAssert(exactSearch.count == 0, "Exact search should find at no one result. Actual: \(exactSearch)")
   }
   
+  func testRemove() {
+    let path = "/tmp/testFileAddedAvoidDuplicates"
+    let fileContent = "testFileContentAvoidDuplicates".data(using: .utf8)!
+    guard FileManager.default.createFile(atPath: path, contents: fileContent, attributes: nil) else {
+      assert(false, "File create failure")
+    }
+    do {
+      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path, useFileName: true)
+      XCTAssert(nameOnlyResult, "name only add result")
+    } catch TonnerreIndexError.fileNotExist {
+      assert(false, "Cannot locate file")
+    } catch {
+      assert(false, "Other error happened")
+    }
+    try? FileManager.default.removeItem(atPath: path)
+    XCTAssert(nameOnlyIndexFile.removeDocument(atPath: path))
+  }
+  
   func testPerformanceExample() {
     // This is an example of a performance test case.
     self.measure {
