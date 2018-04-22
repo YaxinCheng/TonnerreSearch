@@ -13,6 +13,4 @@ public enum TonnerreSearchOptions: SKSearchOptions {
   case noRelevanceScore = 1
   case spaceMeansOR = 2
   case findSimilar = 4
-  case exactSearch = 5// Using the exact query passed in
-  case headingFuzzy = 6// Add * before the query for fuzzy
 }

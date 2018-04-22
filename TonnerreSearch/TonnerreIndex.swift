@@ -91,11 +91,8 @@ public struct TonnerreIndex {
    - Returns: An array of URLs to the found documents
   */
   public func search(query: String, limit: Int, options: TonnerreSearchOptions..., timeLimit: Double = 1) -> [URL] {
-    let cleanedQuery = query.trimmingCharacters(in: CharacterSet(charactersIn: " *"))
-    let fuzziedQuery = options.contains(.headingFuzzy) ? "*" + cleanedQuery : cleanedQuery
-    let refinedQuery = options.contains(.exactSearch) ? query : fuzziedQuery + "*"
-    let skOptions = options.filter({$0.rawValue < 5}).map({$0.rawValue}).reduce(0, |)
-    let searchQuery = SKSearchCreate(indexFile, refinedQuery as CFString, skOptions).takeRetainedValue()
+    let skOptions = options.map({$0.rawValue}).reduce(0, |)
+    let searchQuery = SKSearchCreate(indexFile, query as CFString, skOptions).takeRetainedValue()
     var foundDocIDs = [SKDocumentID](repeating: 0, count: limit)
     var foundScores = [Float](repeating: 0, count: limit)
     var foundCount = 0 as CFIndex

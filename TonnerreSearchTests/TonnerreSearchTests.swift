@@ -111,10 +111,8 @@ class TonnerreSearchTests: XCTestCase {
     XCTAssert(anotherZero.count == 0, "Content search should return 0 result. Actual: \(anotherZero)")
     let anotherNonZero = withContentIndexFile.search(query: "nobler", limit: 2, options: .defaultOption)
     XCTAssert(anotherNonZero.count != 0, "Content search should find at least one result. Actual: \(anotherNonZero)")
-    let shouldNotBeZero = nameOnlyIndexFile.search(query: "testFile", limit: 2, options: .defaultOption)
+    let shouldNotBeZero = nameOnlyIndexFile.search(query: "testFile*", limit: 2, options: .defaultOption)
     XCTAssert(shouldNotBeZero.count != 0, "Name only search should find at least one result. Actual: \(shouldNotBeZero)")
-    let exactSearch = nameOnlyIndexFile.search(query: "testFile", limit: 2, options: .defaultOption, .exactSearch)
-    XCTAssert(exactSearch.count == 0, "Exact search should find at no one result. Actual: \(exactSearch)")
   }
   
   func testRemove() {
