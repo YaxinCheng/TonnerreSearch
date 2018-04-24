@@ -48,12 +48,13 @@ public struct TonnerreIndex {
     }
     guard
       let dirEnumerator = fileManager.enumerator(atPath: dirPath),
-      let fileNames = dirEnumerator.allObjects as? [String]
+      let fileNames = (dirEnumerator.allObjects as? [String])?.filter({ !$0.starts(with: ".") })
+      // filter out hidden files
     else { return [false] }
     SKLoadDefaultExtractorPlugIns()
     defer { SKIndexFlush(indexFile) }
-    let fullPaths = (dirPath as NSString).strings(byAppendingPaths: fileNames).filter({ !$0.starts(with: ".") })// Filter out hidden files
-    let documents = fullPaths.map({ URL(fileURLWithPath: $0) as CFURL }).compactMap({ SKDocumentCreateWithURL($0) }).map({$0.takeRetainedValue()})
+    let fullPaths = (dirPath as NSString).strings(byAppendingPaths: fileNames)
+    let documents = fullPaths.map({ URL(fileURLWithPath: $0) as CFURL }).compactMap({ SKDocumentCreateWithURL($0)?.takeRetainedValue() })
     let addMethod: documentAddFunc = useFileName ? SKIndexAddDocumentWithText : SKIndexAddDocument
     let textContent: [CFString?] = useFileName ? fileNames as [CFString] : [CFString?](repeating: nil, count: documents.count)
     return zip(documents, textContent).map({ doc, text in

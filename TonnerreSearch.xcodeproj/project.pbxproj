@@ -72,6 +72,15 @@
 			path = Index;
 			sourceTree = "<group>";
 		};
+		1471657D208F84E5005EACD0 /* FS Detector */ = {
+			isa = PBXGroup;
+			children = (
+				14716570208E463B005EACD0 /* TonnerreFSDetector.swift */,
+				14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */,
+			);
+			path = "FS Detector";
+			sourceTree = "<group>";
+		};
 		14A9F5EA208D006600DF3FC9 = {
 			isa = PBXGroup;
 			children = (
@@ -95,8 +104,7 @@
 			children = (
 				14A9F5F7208D006600DF3FC9 /* TonnerreSearch.h */,
 				14716572208E4646005EACD0 /* Index */,
-				14716570208E463B005EACD0 /* TonnerreFSDetector.swift */,
-				14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */,
+				1471657D208F84E5005EACD0 /* FS Detector */,
 				14A9F5F8208D006600DF3FC9 /* Info.plist */,
 			);
 			path = TonnerreSearch;

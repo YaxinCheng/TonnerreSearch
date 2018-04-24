@@ -40,6 +40,8 @@ class TonnerreFSDetector {
       let filteredEvents = zip(filePaths, fileFlags).filter {
         !($0.0.components(separatedBy: "/").last ?? "").starts(with: ".")
       }
+      let lastEventID = eventIds[numEvents - 1]
+      UserDefaults.standard.set(lastEventID, forKey: "LastEventIDObserved")
       if let info = clientCallBackInfo {
         // Take self from the callbackInfo. This is because, the block here is a C function, which needs some special treatment
         let mySelf = Unmanaged<TonnerreFSDetector>.fromOpaque(info).takeUnretainedValue()
@@ -54,7 +56,8 @@ class TonnerreFSDetector {
   private func constructStream() {
     let mySelf = Unmanaged.passRetained(self).toOpaque()// Convert `self` into a pointer, then keep to the context
     var context = FSEventStreamContext(version: 0, info: mySelf, retain: nil, release: nil, copyDescription: nil)
-    stream = FSEventStreamCreate(nil, self.streamCallBack, &context, self.monitoringPaths, FSEventStreamEventId(kFSEventStreamEventIdSinceNow), 0, FSEventStreamCreateFlags(kFSEventStreamCreateFlagFileEvents))!
+    let lastEventID = UserDefaults.standard.value(forKey: "LastEventIDObserved") as? FSEventStreamEventId ?? FSEventStreamEventId(kFSEventStreamEventIdSinceNow)
+    stream = FSEventStreamCreate(nil, self.streamCallBack, &context, self.monitoringPaths, lastEventID, 0, FSEventStreamCreateFlags(kFSEventStreamCreateFlagFileEvents))!
   }
   
   /**

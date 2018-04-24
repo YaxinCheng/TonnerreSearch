@@ -27,10 +27,6 @@ enum TonnerreFSEvent: UInt32 {
   case isDirectory    = 0x20000
   case isSymlink      = 0x40000
   
-  private static func & (lhs: UInt32, rhs: TonnerreFSEvent) -> UInt32 {
-    return lhs & rhs.rawValue
-  }
-  
   /**
    Segregate one mixed UInt32 type flag into multiple TonnerreFSEvents
    
@@ -39,7 +35,7 @@ enum TonnerreFSEvent: UInt32 {
   */
   static func segregate(flag: UInt32) -> [TonnerreFSEvent] {
     return (0 ..< 11).map({// Generate all possible TonnerreFSEvent UInt32 values, then & with the flag
-      flag & (0x100 * (pow(2, $0) as NSDecimalNumber).uint32Value)
-    }).filter({ $0 != 0}).compactMap(TonnerreFSEvent.init)
+      flag & (0x100 << $0)
+    }).filter({ $0 != 0 }).compactMap(TonnerreFSEvent.init)
   }
 }
