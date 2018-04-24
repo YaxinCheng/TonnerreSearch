@@ -10,7 +10,6 @@
 		14716571208E463B005EACD0 /* TonnerreFSDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716570208E463B005EACD0 /* TonnerreFSDetector.swift */; };
 		14716576208E4A9C005EACD0 /* TonnerreFSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716575208E4A9C005EACD0 /* TonnerreFSTests.swift */; };
 		1471657A208EABE3005EACD0 /* TonnerreFSEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */; };
-		1471657C208EBCDE005EACD0 /* TonnerreFSDetectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1471657B208EBCDE005EACD0 /* TonnerreFSDetectorDelegate.swift */; };
 		14A9F5FE208D006600DF3FC9 /* TonnerreSearch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14A9F5F4208D006600DF3FC9 /* TonnerreSearch.framework */; };
 		14A9F603208D006600DF3FC9 /* TonnerreSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A9F602208D006600DF3FC9 /* TonnerreSearchTests.swift */; };
 		14A9F605208D006600DF3FC9 /* TonnerreSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = 14A9F5F7208D006600DF3FC9 /* TonnerreSearch.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -33,7 +32,6 @@
 		14716570208E463B005EACD0 /* TonnerreFSDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreFSDetector.swift; sourceTree = "<group>"; };
 		14716575208E4A9C005EACD0 /* TonnerreFSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreFSTests.swift; sourceTree = "<group>"; };
 		14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreFSEvent.swift; sourceTree = "<group>"; };
-		1471657B208EBCDE005EACD0 /* TonnerreFSDetectorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreFSDetectorDelegate.swift; sourceTree = "<group>"; };
 		14A9F5F4208D006600DF3FC9 /* TonnerreSearch.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TonnerreSearch.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		14A9F5F7208D006600DF3FC9 /* TonnerreSearch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TonnerreSearch.h; sourceTree = "<group>"; };
 		14A9F5F8208D006600DF3FC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -98,7 +96,6 @@
 				14A9F5F7208D006600DF3FC9 /* TonnerreSearch.h */,
 				14716572208E4646005EACD0 /* Index */,
 				14716570208E463B005EACD0 /* TonnerreFSDetector.swift */,
-				1471657B208EBCDE005EACD0 /* TonnerreFSDetectorDelegate.swift */,
 				14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */,
 				14A9F5F8208D006600DF3FC9 /* Info.plist */,
 			);
@@ -226,7 +223,6 @@
 			files = (
 				14A9F617208D211A00DF3FC9 /* TonnerreIndexOptions.swift in Sources */,
 				14A9F611208D0B8100DF3FC9 /* TonnerreIndexError.swift in Sources */,
-				1471657C208EBCDE005EACD0 /* TonnerreFSDetectorDelegate.swift in Sources */,
 				14A9F60F208D011B00DF3FC9 /* TonnerreIndex.swift in Sources */,
 				14716571208E463B005EACD0 /* TonnerreFSDetector.swift in Sources */,
 				1471657A208EABE3005EACD0 /* TonnerreFSEvent.swift in Sources */,

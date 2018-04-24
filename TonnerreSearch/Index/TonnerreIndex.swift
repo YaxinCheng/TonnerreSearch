@@ -9,6 +9,9 @@
 import Foundation
 import CoreServices
 
+/**
+ It supposes adding, searching, and removing one or several documents efficiently
+*/
 public struct TonnerreIndex {
   private let indexFile: SKIndex
   private let path: String
