@@ -12,6 +12,7 @@ import CoreServices
 public struct TonnerreIndex {
   private let indexFile: SKIndex
   private let path: String
+  private typealias documentAddFunc = (SKIndex, SKDocument, CFString?, Bool) -> Bool
   
   /**
    Initialize a tonerre index with given filePath
@@ -50,7 +51,7 @@ public struct TonnerreIndex {
     defer { SKIndexFlush(indexFile) }
     let fullPaths = (dirPath as NSString).strings(byAppendingPaths: fileNames).filter({ !$0.starts(with: ".") })// Filter out hidden files
     let documents = fullPaths.map({ URL(fileURLWithPath: $0) as CFURL }).compactMap({ SKDocumentCreateWithURL($0) }).map({$0.takeRetainedValue()})
-    let addMethod: (SKIndex, SKDocument, CFString?, Bool) -> Bool = useFileName ? SKIndexAddDocumentWithText : SKIndexAddDocument
+    let addMethod: documentAddFunc = useFileName ? SKIndexAddDocumentWithText : SKIndexAddDocument
     let textContent: [CFString?] = useFileName ? fileNames as [CFString] : [CFString?](repeating: nil, count: documents.count)
     return zip(documents, textContent).map({ doc, text in
       addMethod(indexFile, doc, text, true)
@@ -76,7 +77,7 @@ public struct TonnerreIndex {
     else { return false }
     SKLoadDefaultExtractorPlugIns()
     defer { SKIndexFlush(indexFile) }
-    let addMethod: (SKIndex, SKDocument, CFString?, Bool) -> Bool = useFileName ? SKIndexAddDocumentWithText : SKIndexAddDocument
+    let addMethod: documentAddFunc = useFileName ? SKIndexAddDocumentWithText : SKIndexAddDocument
     let textContent: CFString? = useFileName ? fileName : nil
     return addMethod(indexFile, document, textContent, true)
   }
