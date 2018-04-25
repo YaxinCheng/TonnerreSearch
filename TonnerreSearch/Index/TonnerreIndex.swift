@@ -15,6 +15,7 @@ import CoreServices
 public struct TonnerreIndex {
   private let indexFile: SKIndex
   private let path: String
+  private let type: TonnerreIndexType
   private typealias documentAddFunc = (SKIndex, SKDocument, CFString?, Bool) -> Bool
   
   /**
@@ -22,8 +23,9 @@ public struct TonnerreIndex {
    
    - Parameter filePath: a path to a file location where the index can be located or created
   */
-  public init(filePath: String) {
+  public init(filePath: String, indexType: TonnerreIndexType) {
     self.path = filePath
+    self.type = indexType
     let name = (filePath.components(separatedBy: "/").last ?? filePath) as CFString
     let url = URL(fileURLWithPath: filePath) as CFURL
     if let foundIndexFile = SKIndexOpenWithURL(url, name, true)?.takeRetainedValue() {
@@ -41,7 +43,7 @@ public struct TonnerreIndex {
    - Throws: `TonnerreIndexError.fileNotExist` if the directory cannot be located
    - Returns: An array of bool values indicating the success of adding to index
   */
-  public func addDocuments(dirPath: String, useFileName: Bool = false) throws -> [Bool] {
+  public func addDocuments(dirPath: String) throws -> [Bool] {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: dirPath) {
       throw TonnerreIndexError.fileNotExist(atPath: dirPath)
@@ -60,8 +62,8 @@ public struct TonnerreIndex {
       .map({ URL(fileURLWithPath: $0)}).filter({!$0.isSymlink})
     let files = fullPaths.filter({ !$0.isDirectory })
     let directories = fullPaths.filter({ $0.isDirectory })
-    return (try directories.compactMap({ try addDocuments(dirPath: $0, useFileName: useFileName)}).reduce([], +))
-      + (try files.compactMap({ try addDocument(atPath: $0, useFileName: useFileName) }))
+    return (try directories.compactMap({ try addDocuments(dirPath: $0)}).reduce([], +))
+      + (try files.compactMap({ try addDocument(atPath: $0) }))
   }
   
   /**
@@ -72,7 +74,7 @@ public struct TonnerreIndex {
    - Throws: `TonnerreIndexError.fileNotExist` if the directory cannot be located
    - Returns: An array of bool values indicating the success of adding to index
    */
-  public func addDocuments(dirPath: URL, useFileName: Bool = false) throws -> [Bool] {
+  public func addDocuments(dirPath: URL) throws -> [Bool] {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: dirPath.path) {
       throw TonnerreIndexError.fileNotExist(atPath: dirPath.path)
@@ -90,8 +92,8 @@ public struct TonnerreIndex {
     let fullPaths = fileNames.map(dirPath.appendingPathComponent).filter({ !$0.isSymlink })
     let files = fullPaths.filter({ !$0.isDirectory })
     let directories = fullPaths.filter({ $0.isDirectory })
-    return (try directories.compactMap({ try addDocuments(dirPath: $0, useFileName: useFileName)}).reduce([], +))
-        + (try files.compactMap({ try addDocument(atPath: $0, useFileName: useFileName) }))
+    return (try directories.compactMap({ try addDocuments(dirPath: $0)}).reduce([], +))
+        + (try files.compactMap({ try addDocument(atPath: $0) }))
   }
   /**
    Add a single document from a given directory path
@@ -101,7 +103,7 @@ public struct TonnerreIndex {
    - Throws: `TonnerreIndexError.fileNotExist` if the file cannot be located
    - Returns: A bool values indicating the success of adding to index
    */
-  public func addDocument(atPath: String, useFileName: Bool = false) throws -> Bool {
+  public func addDocument(atPath: String) throws -> Bool {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: atPath) {
       throw TonnerreIndexError.fileNotExist(atPath: atPath)
@@ -114,8 +116,8 @@ public struct TonnerreIndex {
     else { return false }
     SKLoadDefaultExtractorPlugIns()
     defer { SKIndexFlush(indexFile) }
-    let addMethod: documentAddFunc = useFileName ? SKIndexAddDocumentWithText : SKIndexAddDocument
-    let textContent: CFString? = useFileName ? fileName : nil
+    let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
+    let textContent: CFString? = type == .nameOnly ? fileName : nil
     return addMethod(indexFile, document, textContent, true)
   }
   /**
@@ -126,7 +128,7 @@ public struct TonnerreIndex {
    - Throws: `TonnerreIndexError.fileNotExist` if the file cannot be located
    - Returns: A bool values indicating the success of adding to index
    */
-  public func addDocument(atPath: URL, useFileName: Bool = false) throws -> Bool {
+  public func addDocument(atPath: URL) throws -> Bool {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: atPath.path) {
       throw TonnerreIndexError.fileNotExist(atPath: atPath.path)
@@ -139,8 +141,8 @@ public struct TonnerreIndex {
       else { return false }
     SKLoadDefaultExtractorPlugIns()
     defer { SKIndexFlush(indexFile) }
-    let addMethod: documentAddFunc = useFileName ? SKIndexAddDocumentWithText : SKIndexAddDocument
-    let textContent: CFString? = useFileName ? fileName : nil
+    let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
+    let textContent: CFString? = type == .nameOnly ? fileName : nil
     return addMethod(indexFile, document, textContent, true)
   }
   /**

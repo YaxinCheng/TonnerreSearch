@@ -14,3 +14,8 @@ public enum TonnerreSearchOptions: SKSearchOptions {
   case spaceMeansOR = 2
   case findSimilar = 4
 }
+
+public enum TonnerreIndexType {
+  case nameOnly
+  case metadata
+}

@@ -20,8 +20,8 @@ class TonnerreSearchTests: XCTestCase {
   override func setUp() {
     super.setUp()
     // Put setup code here. This method is called before the invocation of each test method in the class.
-    nameOnlyIndexFile = TonnerreIndex(filePath: nameOnlyIndexPath)
-    withContentIndexFile = TonnerreIndex(filePath: withContentIndexPath)
+    nameOnlyIndexFile = TonnerreIndex(filePath: nameOnlyIndexPath, indexType: .nameOnly)
+    withContentIndexFile = TonnerreIndex(filePath: withContentIndexPath, indexType: .metadata)
     XCTAssert(FileManager.default.fileExists(atPath: nameOnlyIndexPath))
     XCTAssert(FileManager.default.fileExists(atPath: withContentIndexPath))
   }
@@ -48,7 +48,7 @@ class TonnerreSearchTests: XCTestCase {
       assert(false, "File create failure")
     }
     do {
-      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path, useFileName: true)
+      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path)
       let withContentResult = try withContentIndexFile.addDocument(atPath: path)
       XCTAssert(nameOnlyResult, "name only add result")
       XCTAssert(withContentResult, "with content add result")
@@ -65,7 +65,7 @@ class TonnerreSearchTests: XCTestCase {
   func testAddMultiple() {
     let path = "/tmp"
     do {
-      let nameOnlyResult = try nameOnlyIndexFile.addDocuments(dirPath: path, useFileName: true)
+      let nameOnlyResult = try nameOnlyIndexFile.addDocuments(dirPath: path)
       let withContentResult = try withContentIndexFile.addDocuments(dirPath: path)
       XCTAssertEqual(nameOnlyResult, [Bool](repeating: true, count: nameOnlyResult.count), "Name only add result")
       XCTAssertEqual(withContentResult, [Bool](repeating: true, count: withContentResult.count), "With content only add result")
@@ -93,7 +93,7 @@ class TonnerreSearchTests: XCTestCase {
       assert(false, "File create failure")
     }
     do {
-      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path, useFileName: true)
+      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path)
       let withContentResult = try withContentIndexFile.addDocument(atPath: path)
       XCTAssert(nameOnlyResult, "name only add result")
       XCTAssert(withContentResult, "with content add result")
@@ -122,7 +122,7 @@ class TonnerreSearchTests: XCTestCase {
       assert(false, "File create failure")
     }
     do {
-      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path, useFileName: true)
+      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path)
       XCTAssert(nameOnlyResult, "name only add result")
     } catch TonnerreIndexError.fileNotExist {
       assert(false, "Cannot locate file")
@@ -132,4 +132,19 @@ class TonnerreSearchTests: XCTestCase {
     try? FileManager.default.removeItem(atPath: path)
     XCTAssert(nameOnlyIndexFile.removeDocument(atPath: path))
   }
+  
+//  func testPerformance() {
+//    let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+//    self.measure {
+//      do {
+//        let documentsResult = try nameOnlyIndexFile.addDocuments(dirPath: path)
+//      } catch TonnerreIndexError.indexingError(atPath: let failedPath) {
+//        print("Failed at \(failedPath)")
+//      } catch TonnerreIndexError.fileNotExist(atPath: let failedPath) {
+//        print("File not found at \(failedPath)")
+//      } catch {
+//        print("other error: \(error)")
+//      }
+//    }
+//  }
 }
