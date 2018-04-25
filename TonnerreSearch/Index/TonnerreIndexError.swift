@@ -8,6 +8,7 @@
 
 import Foundation
 
-enum TonnerreIndexError: Error {
+public enum TonnerreIndexError: Error {
   case fileNotExist
+  case indexingError(atPath: String)
 }
