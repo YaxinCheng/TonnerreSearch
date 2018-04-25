@@ -60,8 +60,8 @@ public struct TonnerreIndex {
       .map({ URL(fileURLWithPath: $0)}).filter({!$0.isSymlink})
     let files = fullPaths.filter({ !$0.isDirectory })
     let directories = fullPaths.filter({ $0.isDirectory })
-    return try files.compactMap({ try addDocument(atPath: $0, useFileName: useFileName) })
-      + (try directories.compactMap({ try addDocuments(dirPath: $0, useFileName: useFileName)}).reduce([], +))
+    return (try directories.compactMap({ try addDocuments(dirPath: $0, useFileName: useFileName)}).reduce([], +))
+      + (try files.compactMap({ try addDocument(atPath: $0, useFileName: useFileName) }))
   }
   
   /**
@@ -90,8 +90,8 @@ public struct TonnerreIndex {
     let fullPaths = fileNames.map(dirPath.appendingPathComponent).filter({ !$0.isSymlink })
     let files = fullPaths.filter({ !$0.isDirectory })
     let directories = fullPaths.filter({ $0.isDirectory })
-      return try files.compactMap({ try addDocument(atPath: $0, useFileName: useFileName) })
-        + (try directories.compactMap({ try addDocuments(dirPath: $0, useFileName: useFileName)}).reduce([], +))
+    return (try directories.compactMap({ try addDocuments(dirPath: $0, useFileName: useFileName)}).reduce([], +))
+        + (try files.compactMap({ try addDocument(atPath: $0, useFileName: useFileName) }))
   }
   /**
    Add a single document from a given directory path
