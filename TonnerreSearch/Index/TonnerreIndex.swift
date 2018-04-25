@@ -44,7 +44,7 @@ public struct TonnerreIndex {
   public func addDocuments(dirPath: String, useFileName: Bool = false) throws -> [Bool] {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: dirPath) {
-      throw TonnerreIndexError.fileNotExist
+      throw TonnerreIndexError.fileNotExist(atPath: dirPath)
     }
     let fileNames: [String]
     do {
@@ -57,9 +57,9 @@ public struct TonnerreIndex {
     SKLoadDefaultExtractorPlugIns()
     defer { SKIndexFlush(indexFile) }
     let fullPaths = (dirPath as NSString).strings(byAppendingPaths: fileNames)
-      .map({ URL(fileURLWithPath: $0)}).filter({!$0.isSymlink()})
-    let files = fullPaths.filter({ !$0.isDirectory() })
-    let directories = fullPaths.filter({ $0.isDirectory() })
+      .map({ URL(fileURLWithPath: $0)}).filter({!$0.isSymlink})
+    let files = fullPaths.filter({ !$0.isDirectory })
+    let directories = fullPaths.filter({ $0.isDirectory })
     return try files.compactMap({ try addDocument(atPath: $0, useFileName: useFileName) })
       + (try directories.compactMap({ try addDocuments(dirPath: $0, useFileName: useFileName)}).reduce([], +))
   }
@@ -75,7 +75,7 @@ public struct TonnerreIndex {
   public func addDocuments(dirPath: URL, useFileName: Bool = false) throws -> [Bool] {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: dirPath.path) {
-      throw TonnerreIndexError.fileNotExist
+      throw TonnerreIndexError.fileNotExist(atPath: dirPath.path)
     }
     let fileNames: [String]
     do {
@@ -87,9 +87,9 @@ public struct TonnerreIndex {
     }
     SKLoadDefaultExtractorPlugIns()
     defer { SKIndexFlush(indexFile) }
-    let fullPaths = fileNames.map(dirPath.appendingPathComponent).filter({ !$0.isSymlink() })
-    let files = fullPaths.filter({ !$0.isDirectory() })
-    let directories = fullPaths.filter({ $0.isDirectory() })
+    let fullPaths = fileNames.map(dirPath.appendingPathComponent).filter({ !$0.isSymlink })
+    let files = fullPaths.filter({ !$0.isDirectory })
+    let directories = fullPaths.filter({ $0.isDirectory })
       return try files.compactMap({ try addDocument(atPath: $0, useFileName: useFileName) })
         + (try directories.compactMap({ try addDocuments(dirPath: $0, useFileName: useFileName)}).reduce([], +))
   }
@@ -104,12 +104,13 @@ public struct TonnerreIndex {
   public func addDocument(atPath: String, useFileName: Bool = false) throws -> Bool {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: atPath) {
-      throw TonnerreIndexError.fileNotExist
+      throw TonnerreIndexError.fileNotExist(atPath: atPath)
     }
-    let fileName = (atPath.components(separatedBy: "/").last ?? atPath) as CFString
-    let fileURL = URL(fileURLWithPath: atPath) as CFURL
+    let fileURL = URL(fileURLWithPath: atPath)
+    if fileURL.lastPathComponent.starts(with: ".") { return true }
+    let fileName = fileURL.lastPathComponent as CFString
     guard
-      let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue()
+      let document = SKDocumentCreateWithURL(fileURL as CFURL)?.takeRetainedValue()
     else { return false }
     SKLoadDefaultExtractorPlugIns()
     defer { SKIndexFlush(indexFile) }
@@ -128,7 +129,7 @@ public struct TonnerreIndex {
   public func addDocument(atPath: URL, useFileName: Bool = false) throws -> Bool {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: atPath.path) {
-      throw TonnerreIndexError.fileNotExist
+      throw TonnerreIndexError.fileNotExist(atPath: atPath.path)
     }
     if atPath.lastPathComponent.starts(with: ".") { return true }
     let fileName = atPath.lastPathComponent as CFString
@@ -186,14 +187,19 @@ public struct TonnerreIndex {
 }
 
 fileprivate extension URL {
-  func isSymlink() -> Bool {
+  /**
+   Check if an URL is a symlink
+  */
+  var isSymlink: Bool {
     let values = try? self.resourceValues(forKeys: [.isSymbolicLinkKey, .isAliasFileKey])
     guard let alias = values?.isAliasFile, let symlink = values?.isSymbolicLink else { return false }
     return alias || symlink
   }
   
-  func isDirectory() -> Bool {
-    let values = try? self.resourceValues(forKeys: [.isDirectoryKey])
-    return values?.isDirectory ?? false
+  /**
+   Check if an URL is a directory
+   */
+  var isDirectory: Bool {
+    return (try? resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
   }
 }
