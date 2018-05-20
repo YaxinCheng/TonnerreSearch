@@ -22,6 +22,7 @@ public struct TonnerreIndex {
    Initialize a tonerre index with given filePath
    
    - Parameter filePath: a path to a file location where the index can be located or created
+   - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
   */
   public init(filePath: String, indexType: TonnerreIndexType) {
     self.path = filePath
@@ -39,42 +40,42 @@ public struct TonnerreIndex {
    Add a single document from a given directory path
    
    - Parameter atPath: a path of the file needs to be added
-   - Parameter useFileName: use file name instead of content of the file. Usually used for images. false by default
+   - Parameter additionalNote: extra information the user may want to include in the index with this document
    - Throws: `TonnerreIndexError.fileNotExist` if the file cannot be located
    - Returns: A bool values indicating the success of adding to index
    */
-  public func addDocument(atPath: String) throws -> Bool {
+  public func addDocument(atPath: String, additionalNote: String = "") throws -> Bool {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: atPath) {
       throw TonnerreIndexError.fileNotExist(atPath: atPath)
     }
     let fileURL = URL(fileURLWithPath: atPath)
     if fileURL.lastPathComponent.starts(with: ".") { return true }
-    let fileName = fileURL.lastPathComponent as CFString
+    let fileName = fileURL.lastPathComponent
     guard
       let document = SKDocumentCreateWithURL(fileURL as CFURL)?.takeRetainedValue()
     else { return false }
     SKLoadDefaultExtractorPlugIns()
     defer { SKIndexFlush(indexFile) }
     let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
-    let textContent: CFString? = type == .nameOnly ? fileName : nil
+    let textContent: CFString? = type == .nameOnly ? (fileName + " \(additionalNote)") as CFString : nil
     return addMethod(indexFile, document, textContent, true)
   }
   /**
    Add a single document from a given directory path
    
    - Parameter atPath: a path of the file needs to be added
-   - Parameter useFileName: use file name instead of content of the file. Usually used for images. false by default
+   - Parameter additionalNote: extra information the user may want to include in the index with this document
    - Throws: `TonnerreIndexError.fileNotExist` if the file cannot be located
    - Returns: A bool values indicating the success of adding to index
    */
-  public func addDocument(atPath: URL) throws -> Bool {
+  public func addDocument(atPath: URL, additionalNote: String = "") throws -> Bool {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: atPath.path) {
       throw TonnerreIndexError.fileNotExist(atPath: atPath.path)
     }
     if atPath.lastPathComponent.starts(with: ".") { return true }
-    let fileName = atPath.lastPathComponent as CFString
+    let fileName = atPath.lastPathComponent
     let fileURL = atPath as CFURL
     guard
       let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue()
@@ -82,7 +83,7 @@ public struct TonnerreIndex {
     SKLoadDefaultExtractorPlugIns()
     defer { SKIndexFlush(indexFile) }
     let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
-    let textContent: CFString? = type == .nameOnly ? fileName : nil
+    let textContent: CFString? = type == .nameOnly ? (fileName + " \(additionalNote)") as CFString : nil
     return addMethod(indexFile, document, textContent, true)
   }
   /**
