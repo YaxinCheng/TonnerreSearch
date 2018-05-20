@@ -15,7 +15,7 @@ import CoreServices
 public struct TonnerreIndex {
   private let indexFile: SKIndex
   private let path: String
-  private let type: TonnerreIndexType
+  public let type: TonnerreIndexType
   private typealias documentAddFunc = (SKIndex, SKDocument, CFString?, Bool) -> Bool
   
   /**
