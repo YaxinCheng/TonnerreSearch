@@ -14,7 +14,7 @@ import CoreServices
  
  When a user initialize this object, and starts the stream, it detects the FS Events happened to the specified pathes. Whenever an event or several events happens, it passes the related events and pathes to the call back function
 */
-class TonnerreFSDetector {
+public class TonnerreFSDetector {
   private let monitoringPaths: CFArray
   private var stream: FSEventStreamRef! = nil
   private let streamCallBack: FSEventStreamCallback
@@ -30,7 +30,11 @@ class TonnerreFSDetector {
    - Parameter paths: Any FS events happened in these pathes will be monitored
    - Parameter callback: The call back function when FS event happens
   */
-  public init(pathes: String..., callback: @escaping ([event])->Void) {
+  public convenience init(pathes: String..., callback: @escaping ([event])->Void) {
+    self.init(pathes: pathes, callback: callback)
+  }
+  
+  public init(pathes: [String], callback: @escaping ([event])->Void) {
     self.callback = callback
     monitoringPaths = pathes as CFArray
     streamCallBack = { (stream, clientCallBackInfo, numEvents, eventPaths, eventFlags, eventIds) in

@@ -14,7 +14,7 @@ import CoreServices
  
  Several file system events that can be detected (e.g. created, removed, or modified...)
 */
-enum TonnerreFSEvent: UInt32 {
+public enum TonnerreFSEvent: UInt32 {
   case created        = 0x100
   case removed        = 0x200
   case inodeModified  = 0x400

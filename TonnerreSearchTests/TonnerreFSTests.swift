@@ -12,9 +12,10 @@ import XCTest
 
 class TonnerreFSTests: XCTestCase {
   var eventList: [TonnerreFSDetector.event] = []
+  var fsDetector: TonnerreFSDetector!
   
   override func setUp() {
-    let fsDetector = TonnerreFSDetector(pathes: "/tmp", callback: fileEventsOccured)
+    fsDetector = TonnerreFSDetector(pathes: "/tmp", callback: fileEventsOccured)
     fsDetector.start()
   }
   
@@ -40,6 +41,22 @@ class TonnerreFSTests: XCTestCase {
         let info = $0.userInfo as? [String: [TonnerreFSDetector.event]],
         let eventList = info["events"]
       else { return false }
+      return eventList.map({$0.path}).contains(path)
+    }
+    waitForExpectations(timeout: 6, handler: nil)
+    try? FileManager.default.removeItem(atPath: path)
+  }
+  
+  func testDelayedNotification() {
+    fsDetector.stop()
+    let path = "/private/tmp/randomFileTestingDelayedNotification"
+    _ = FileManager.default.createFile(atPath: path, contents: "Random".data(using: .utf8), attributes: nil)
+    fsDetector.start()
+    let _ = expectation(forNotification: .TonnerreFSEventArrives, object: nil) {
+      guard
+        let info = $0.userInfo as? [String: [TonnerreFSDetector.event]],
+        let eventList = info["events"]
+        else { return false }
       return eventList.map({$0.path}).contains(path)
     }
     waitForExpectations(timeout: 6, handler: nil)

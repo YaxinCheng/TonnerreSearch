@@ -36,66 +36,6 @@ public struct TonnerreIndex {
     }
   }
   /**
-   Add documents recursively from a given directory path
-   
-   - Parameter dirPath: a path contains all files needs to be added
-   - Parameter useFileName: use file name instead of content of the file. Usually used for images. false by default
-   - Throws: `TonnerreIndexError.fileNotExist` if the directory cannot be located
-   - Returns: An array of bool values indicating the success of adding to index
-  */
-  public func addDocuments(dirPath: String) throws -> [Bool] {
-    let fileManager = FileManager.default
-    if !fileManager.fileExists(atPath: dirPath) {
-      throw TonnerreIndexError.fileNotExist(atPath: dirPath)
-    }
-    let fileNames: [String]
-    do {
-      fileNames = try fileManager.contentsOfDirectory(atPath: dirPath)
-        .filter({ !$0.starts(with: "." )})
-      if fileNames.isEmpty { return [] }
-    } catch {
-      throw TonnerreIndexError.indexingError(atPath: dirPath)
-    }
-    SKLoadDefaultExtractorPlugIns()
-    defer { SKIndexFlush(indexFile) }
-    let fullPaths = (dirPath as NSString).strings(byAppendingPaths: fileNames)
-      .map({ URL(fileURLWithPath: $0)}).filter({!$0.isSymlink})
-    let files = fullPaths.filter({ !$0.isDirectory })
-    let directories = fullPaths.filter({ $0.isDirectory })
-    return (try directories.compactMap({ try addDocuments(dirPath: $0)}).reduce([], +))
-      + (try files.compactMap({ try addDocument(atPath: $0) }))
-  }
-  
-  /**
-   Add documents recursively from a given directory path
-   
-   - Parameter dirPath: a path contains all files needs to be added
-   - Parameter useFileName: use file name instead of content of the file. Usually used for images. false by default
-   - Throws: `TonnerreIndexError.fileNotExist` if the directory cannot be located
-   - Returns: An array of bool values indicating the success of adding to index
-   */
-  public func addDocuments(dirPath: URL) throws -> [Bool] {
-    let fileManager = FileManager.default
-    if !fileManager.fileExists(atPath: dirPath.path) {
-      throw TonnerreIndexError.fileNotExist(atPath: dirPath.path)
-    }
-    let fileNames: [String]
-    do {
-      fileNames = try fileManager.contentsOfDirectory(atPath: dirPath.path)
-        .filter({ !$0.starts(with: "." ) })
-      if fileNames.isEmpty { return [] }
-    } catch {
-      throw TonnerreIndexError.indexingError(atPath: dirPath.path)
-    }
-    SKLoadDefaultExtractorPlugIns()
-    defer { SKIndexFlush(indexFile) }
-    let fullPaths = fileNames.map(dirPath.appendingPathComponent).filter({ !$0.isSymlink })
-    let files = fullPaths.filter({ !$0.isDirectory })
-    let directories = fullPaths.filter({ $0.isDirectory })
-    return (try directories.compactMap({ try addDocuments(dirPath: $0)}).reduce([], +))
-        + (try files.compactMap({ try addDocument(atPath: $0) }))
-  }
-  /**
    Add a single document from a given directory path
    
    - Parameter atPath: a path of the file needs to be added
@@ -185,23 +125,5 @@ public struct TonnerreIndex {
   */
   public func close() {
     SKIndexClose(indexFile)
-  }
-}
-
-fileprivate extension URL {
-  /**
-   Check if an URL is a symlink
-  */
-  var isSymlink: Bool {
-    let values = try? self.resourceValues(forKeys: [.isSymbolicLinkKey, .isAliasFileKey])
-    guard let alias = values?.isAliasFile, let symlink = values?.isSymbolicLink else { return false }
-    return alias || symlink
-  }
-  
-  /**
-   Check if an URL is a directory
-   */
-  var isDirectory: Bool {
-    return (try? resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
   }
 }

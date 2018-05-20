@@ -62,20 +62,6 @@ class TonnerreSearchTests: XCTestCase {
     }
   }
   
-  func testAddMultiple() {
-    let path = "/tmp"
-    do {
-      let nameOnlyResult = try nameOnlyIndexFile.addDocuments(dirPath: path)
-      let withContentResult = try withContentIndexFile.addDocuments(dirPath: path)
-      XCTAssertEqual(nameOnlyResult, [Bool](repeating: true, count: nameOnlyResult.count), "Name only add result")
-      XCTAssertEqual(withContentResult, [Bool](repeating: true, count: withContentResult.count), "With content only add result")
-    } catch TonnerreIndexError.fileNotExist {
-      assert(false, "Cannot locate files")
-    } catch {
-      assert(false, "Other error happened")
-    }
-  }
-  
   func testSearch() {
     let path = "/tmp/testFileWithCertainContentAvoidDuplicates.txt"
     let fileContent = """
