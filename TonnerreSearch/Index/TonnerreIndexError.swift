@@ -10,5 +10,4 @@ import Foundation
 
 public enum TonnerreIndexError: Error {
   case fileNotExist(atPath: String)
-  case indexingError(atPath: String)
 }
