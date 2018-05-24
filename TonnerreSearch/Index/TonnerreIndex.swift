@@ -14,7 +14,7 @@ import CoreServices
 */
 public struct TonnerreIndex {
   private let indexFile: SKIndex
-  private let path: String
+  private let path: URL
   public let type: TonnerreIndexType
   private typealias documentAddFunc = (SKIndex, SKDocument, CFString?, Bool) -> Bool
   
@@ -25,10 +25,21 @@ public struct TonnerreIndex {
    - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
   */
   public init(filePath: String, indexType: TonnerreIndexType) {
+    let path = URL(fileURLWithPath: filePath)
+    self.init(filePath: path, indexType: indexType)
+  }
+  
+  /**
+   Initialize a tonerre index with given filePath
+   
+   - Parameter filePath: a path to a file location where the index can be located or created
+   - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
+   */
+  public init(filePath: URL, indexType: TonnerreIndexType) {
     self.path = filePath
     self.type = indexType
-    let name = (filePath.components(separatedBy: "/").last ?? filePath) as CFString
-    let url = URL(fileURLWithPath: filePath) as CFURL
+    let name = filePath.lastPathComponent as CFString
+    let url = filePath as CFURL
     if let foundIndexFile = SKIndexOpenWithURL(url, name, true)?.takeRetainedValue() {
       indexFile = foundIndexFile
     } else {
@@ -45,21 +56,8 @@ public struct TonnerreIndex {
    - Returns: A bool values indicating the success of adding to index
    */
   public func addDocument(atPath: String, additionalNote: String = "") throws -> Bool {
-    let fileManager = FileManager.default
-    if !fileManager.fileExists(atPath: atPath) {
-      throw TonnerreIndexError.fileNotExist(atPath: atPath)
-    }
-    let fileURL = URL(fileURLWithPath: atPath)
-    if fileURL.lastPathComponent.starts(with: ".") { return true }
-    let fileName = fileURL.lastPathComponent
-    guard
-      let document = SKDocumentCreateWithURL(fileURL as CFURL)?.takeRetainedValue()
-    else { return false }
-    SKLoadDefaultExtractorPlugIns()
-    defer { SKIndexFlush(indexFile) }
-    let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
-    let textContent: CFString? = type == .nameOnly ? (fileName + " \(additionalNote)") as CFString : nil
-    return addMethod(indexFile, document, textContent, true)
+    let path = URL(fileURLWithPath: atPath)
+    return try addDocument(atPath: path, additionalNote: additionalNote)
   }
   /**
    Add a single document from a given directory path
@@ -114,8 +112,17 @@ public struct TonnerreIndex {
    - Returns: The result of remove
   */
   public func removeDocument(atPath: String) -> Bool {
-    let fileURL = URL(fileURLWithPath: atPath) as CFURL
-    guard let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue() else { return false }
+    let fileURL = URL(fileURLWithPath: atPath)
+    return removeDocument(atPath: fileURL)
+  }
+  
+  /**
+   Remove a document from the index and delete all related documents
+   - Parameter atPath: the path of the file needs to be removed
+   - Returns: The result of remove
+   */
+  public func removeDocument(atPath: URL) -> Bool {
+    guard let document = SKDocumentCreateWithURL(atPath as CFURL)?.takeRetainedValue() else { return false }
     let result = SKIndexRemoveDocument(indexFile, document)
     SKIndexCompact(indexFile)
     return result
