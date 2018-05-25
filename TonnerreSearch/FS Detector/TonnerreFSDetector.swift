@@ -42,7 +42,10 @@ public class TonnerreFSDetector {
       let filePaths = (0 ..< numEvents).map { String(cString: cString[$0]) }
       let fileFlags = (0 ..< numEvents).map { TonnerreFSEvent.segregate(flag: eventFlags[$0]) }
       let filteredEvents = zip(filePaths, fileFlags).filter {
-        !($0.0.components(separatedBy: "/").last ?? "").starts(with: ".")
+        let components = $0.0.components(separatedBy: "/")
+        let hiddenFile = (components.last ?? "").starts(with: ".")
+        let insideApp = components[0..<components.count-1].contains(where: { $0.hasSuffix(".app") })
+        return !hiddenFile && !insideApp
       }
       let lastEventID = eventIds[numEvents - 1]
       UserDefaults.standard.set(lastEventID, forKey: "LastEventIDObserved")
