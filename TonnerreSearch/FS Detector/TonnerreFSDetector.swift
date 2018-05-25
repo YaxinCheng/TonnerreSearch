@@ -49,6 +49,7 @@ public class TonnerreFSDetector {
       }
       let lastEventID = eventIds[numEvents - 1]
       UserDefaults.standard.set(lastEventID, forKey: "LastEventIDObserved")
+      if filteredEvents.count == 0 { return }
       if let info = clientCallBackInfo {
         // Take self from the callbackInfo. This is because, the block here is a C function, which needs some special treatment
         let mySelf = Unmanaged<TonnerreFSDetector>.fromOpaque(info).takeUnretainedValue()
