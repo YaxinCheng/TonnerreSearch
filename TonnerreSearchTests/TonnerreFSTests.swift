@@ -47,6 +47,23 @@ class TonnerreFSTests: XCTestCase {
     try? FileManager.default.removeItem(atPath: path)
   }
   
+  func testInsideApp() {
+    let path = "/private/tmp/random.app/randomFileUsedToDetectCorrectness"
+    let appDir = "/private/tmp/random.framework/"
+    try? FileManager.default.createDirectory(atPath: appDir, withIntermediateDirectories: true, attributes: nil)
+    _ = FileManager.default.createFile(atPath: path, contents: "Hello World".data(using: .utf8)!, attributes: nil)
+    let _ = expectation(forNotification: .TonnerreFSEventArrives, object: nil) {
+      guard
+        let info = $0.userInfo as? [String: [TonnerreFSDetector.event]],
+        let eventList = info["events"]
+        else { return false }
+      return !eventList.map({$0.path}).contains(path)
+    }
+    waitForExpectations(timeout: 6, handler: nil)
+    try? FileManager.default.removeItem(atPath: path)
+    try? FileManager.default.removeItem(atPath: appDir)
+  }
+  
   func testDelayedNotification() {
     fsDetector.stop()
     let path = "/private/tmp/randomFileTestingDelayedNotification"
