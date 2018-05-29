@@ -36,7 +36,7 @@ public class TonnerreFSDetector {
   
   public init(pathes: [String], callback: @escaping ([event])->Void) {
     self.callback = callback
-    monitoringPaths = pathes as CFArray
+    monitoringPaths = pathes.map({$0 as CFString}) as CFArray
     streamCallBack = { (stream, clientCallBackInfo, numEvents, eventPaths, eventFlags, eventIds) in
       let cString = eventPaths.assumingMemoryBound(to: UnsafePointer<CChar>.self)// void* -> char**
       let filePaths = (0 ..< numEvents).map { String(cString: cString[$0]) }
