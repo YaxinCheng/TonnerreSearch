@@ -101,8 +101,9 @@ public struct TonnerreIndex {
     var foundCount = 0 as CFIndex
     let _ = SKSearchFindMatches(searchQuery, limit as CFIndex, &foundDocIDs, &foundScores, timeLimit as CFTimeInterval, &foundCount)
     guard foundCount > 0 else { return [] }
-    var foundURLs = [Unmanaged<CFURL>?](repeating: nil, count: foundCount)
-    SKIndexCopyDocumentURLsForDocumentIDs(indexFile, foundCount, &foundDocIDs, &foundURLs)
+    var sortedIDs = zip(foundScores, foundDocIDs).sorted(by: { $0.0 > $1.0 }).map({ $0.1 })
+    var foundURLs = [Unmanaged<CFURL>?](repeating: nil, count: sortedIDs.count)
+    SKIndexCopyDocumentURLsForDocumentIDs(indexFile, foundCount, &sortedIDs, &foundURLs)
     return foundURLs.compactMap { $0?.takeRetainedValue() as URL? }
   }
   
