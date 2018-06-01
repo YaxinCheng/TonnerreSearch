@@ -96,15 +96,20 @@ public struct TonnerreIndex {
   public func search(query: String, limit: Int, options: TonnerreSearchOptions..., timeLimit: Double = 1) -> [URL] {
     let skOptions = options.map({$0.rawValue}).reduce(0, |)
     let searchQuery = SKSearchCreate(indexFile, query as CFString, skOptions).takeRetainedValue()
-    var foundDocIDs = [SKDocumentID](repeating: 0, count: limit)
-    var foundScores = [Float](repeating: 0, count: limit)
+    var foundDocIDs = [SKDocumentID](repeating: 0, count: limit * 2)
+    var foundScores = [Float](repeating: 0, count: limit * 2)
     var foundCount = 0 as CFIndex
     let _ = SKSearchFindMatches(searchQuery, limit as CFIndex, &foundDocIDs, &foundScores, timeLimit as CFTimeInterval, &foundCount)
     guard foundCount > 0 else { return [] }
-    var sortedIDs = zip(foundScores, foundDocIDs).sorted(by: { $0.0 > $1.0 }).map({ $0.1 })
-    var foundURLs = [Unmanaged<CFURL>?](repeating: nil, count: sortedIDs.count)
-    SKIndexCopyDocumentURLsForDocumentIDs(indexFile, foundCount, &sortedIDs, &foundURLs)
-    return foundURLs.compactMap { $0?.takeRetainedValue() as URL? }
+    let keepCount = min(foundCount as Int, limit)
+    var foundURLs = [Unmanaged<CFURL>?](repeating: nil, count: foundCount)
+    SKIndexCopyDocumentURLsForDocumentIDs(indexFile, foundCount, &foundDocIDs, &foundURLs)
+    let extractedURLs = foundURLs.map({ $0?.takeRetainedValue() as URL? })
+    let sortedByDepth = zip(foundScores, extractedURLs).filter({ $0.1 != nil }).sorted { $0.1!.path.count < $1.1!.path.count }
+    let keptURLs = Array(sortedByDepth[0 ..< keepCount])
+    let sortedByScores = keptURLs.sorted(by: { $0.0 > $1.0 })
+    let finalURLs = sortedByScores.compactMap({ $0.1 })
+    return finalURLs
   }
   
   /**
@@ -127,12 +132,5 @@ public struct TonnerreIndex {
     let result = SKIndexRemoveDocument(indexFile, document)
     SKIndexCompact(indexFile)
     return result
-  }
-  
-  /**
-  Close the index when it is not used
-  */
-  public func close() {
-    SKIndexClose(indexFile)
   }
 }

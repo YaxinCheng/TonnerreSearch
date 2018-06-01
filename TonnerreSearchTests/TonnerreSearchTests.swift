@@ -28,8 +28,6 @@ class TonnerreSearchTests: XCTestCase {
   
   override func tearDown() {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
-    nameOnlyIndexFile.close()
-    withContentIndexFile.close()
     do {
       try FileManager.default.removeItem(atPath: nameOnlyIndexPath)
       try FileManager.default.removeItem(atPath: withContentIndexPath)
