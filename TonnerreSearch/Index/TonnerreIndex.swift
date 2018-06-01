@@ -46,6 +46,7 @@ public struct TonnerreIndex {
       let indexType = SKIndexType(kSKIndexInverted.rawValue)
       indexFile = SKIndexCreateWithURL(url, name, indexType, nil).takeRetainedValue()
     }
+    SKLoadDefaultExtractorPlugIns()
   }
   /**
    Add a single document from a given directory path
@@ -78,7 +79,6 @@ public struct TonnerreIndex {
     guard
       let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue()
       else { return false }
-    SKLoadDefaultExtractorPlugIns()
     defer { SKIndexFlush(indexFile) }
     let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
     let textContent: CFString? = type == .nameOnly ? (fileName + " \(additionalNote)") as CFString : nil
@@ -96,17 +96,15 @@ public struct TonnerreIndex {
   public func search(query: String, limit: Int, options: TonnerreSearchOptions..., timeLimit: Double = 1) -> [URL] {
     let skOptions = options.map({$0.rawValue}).reduce(0, |)
     let searchQuery = SKSearchCreate(indexFile, query as CFString, skOptions).takeRetainedValue()
-    var foundDocIDs = [SKDocumentID](repeating: 0, count: limit * 2)
-    var foundScores = [Float](repeating: 0, count: limit * 2)
+    var foundDocIDs = [SKDocumentID](repeating: 0, count: limit)
+    var foundScores = [Float](repeating: 0, count: limit)
     var foundCount = 0 as CFIndex
     let _ = SKSearchFindMatches(searchQuery, limit as CFIndex, &foundDocIDs, &foundScores, timeLimit as CFTimeInterval, &foundCount)
     guard foundCount > 0 else { return [] }
-    let keepCount = min(foundCount as Int, limit)
     var foundURLs = [Unmanaged<CFURL>?](repeating: nil, count: foundCount)
     SKIndexCopyDocumentURLsForDocumentIDs(indexFile, foundCount, &foundDocIDs, &foundURLs)
     let extractedURLs = foundURLs.map({ $0?.takeRetainedValue() as URL? })
-    let sortedByDepth = zip(foundScores, extractedURLs).filter({ $0.1 != nil }).sorted { $0.1!.path.count < $1.1!.path.count }
-    let keptURLs = Array(sortedByDepth[0 ..< keepCount])
+    let keptURLs = zip(foundScores, extractedURLs).filter({ $0.1 != nil })
     let sortedByScores = keptURLs.sorted(by: { $0.0 > $1.0 })
     let finalURLs = sortedByScores.compactMap({ $0.1 })
     return finalURLs
