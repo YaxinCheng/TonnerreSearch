@@ -16,7 +16,9 @@ TonnerreSearch provides pure Swift interface, with C code running underneath it 
 - Manually
   - git clone this repo, and compile. Then add the compiled `TonnerreSearch.framework` to your project
 - Carthage
-  - In consideration...
+  - Add `github "YaxinCheng/TonnerreSearch"` to your *cartfile*
+  - Run `carthage update`
+  - After compiling, add the built `TonnerreSearch.framework` to your project
 
 ## Features
 
