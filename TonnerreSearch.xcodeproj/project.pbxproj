@@ -10,7 +10,6 @@
 		14716571208E463B005EACD0 /* TonnerreFSDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716570208E463B005EACD0 /* TonnerreFSDetector.swift */; };
 		14716576208E4A9C005EACD0 /* TonnerreFSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716575208E4A9C005EACD0 /* TonnerreFSTests.swift */; };
 		1471657A208EABE3005EACD0 /* TonnerreFSEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */; };
-		147165E820910DCD005EACD0 /* TonnerreSearch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14A9F5F4208D006600DF3FC9 /* TonnerreSearch.framework */; };
 		14A9F603208D006600DF3FC9 /* TonnerreSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A9F602208D006600DF3FC9 /* TonnerreSearchTests.swift */; };
 		14A9F605208D006600DF3FC9 /* TonnerreSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = 14A9F5F7208D006600DF3FC9 /* TonnerreSearch.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		14A9F60F208D011B00DF3FC9 /* TonnerreIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A9F60E208D011B00DF3FC9 /* TonnerreIndex.swift */; };
@@ -48,7 +47,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				147165E820910DCD005EACD0 /* TonnerreSearch.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
