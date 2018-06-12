@@ -20,8 +20,8 @@ class TonnerreSearchTests: XCTestCase {
   override func setUp() {
     super.setUp()
     // Put setup code here. This method is called before the invocation of each test method in the class.
-    nameOnlyIndexFile = TonnerreIndex(filePath: nameOnlyIndexPath, indexType: .nameOnly)
-    withContentIndexFile = TonnerreIndex(filePath: withContentIndexPath, indexType: .metadata)
+    nameOnlyIndexFile = TonnerreIndex(filePath: nameOnlyIndexPath, indexType: .nameOnly, writable: true)
+    withContentIndexFile = TonnerreIndex(filePath: withContentIndexPath, indexType: .metadata, writable: true)
     XCTAssert(FileManager.default.fileExists(atPath: nameOnlyIndexPath))
     XCTAssert(FileManager.default.fileExists(atPath: withContentIndexPath))
   }

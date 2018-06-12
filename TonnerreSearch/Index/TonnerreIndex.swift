@@ -24,9 +24,9 @@ public struct TonnerreIndex {
    - Parameter filePath: a path to a file location where the index can be located or created
    - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
   */
-  public init(filePath: String, indexType: TonnerreIndexType) {
+  public init(filePath: String, indexType: TonnerreIndexType, writable: Bool = false) {
     let path = URL(fileURLWithPath: filePath)
-    self.init(filePath: path, indexType: indexType)
+    self.init(filePath: path, indexType: indexType, writable: writable)
   }
   
   /**
@@ -35,12 +35,12 @@ public struct TonnerreIndex {
    - Parameter filePath: a path to a file location where the index can be located or created
    - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
    */
-  public init(filePath: URL, indexType: TonnerreIndexType) {
+  public init(filePath: URL, indexType: TonnerreIndexType, writable: Bool = false) {
     self.path = filePath
     self.type = indexType
     let name = filePath.lastPathComponent as CFString
     let url = filePath as CFURL
-    if let foundIndexFile = SKIndexOpenWithURL(url, name, true)?.takeRetainedValue() {
+    if let foundIndexFile = SKIndexOpenWithURL(url, name, writable)?.takeRetainedValue() {
       indexFile = foundIndexFile
     } else {
       let indexType = SKIndexType(kSKIndexInverted.rawValue)
