@@ -24,7 +24,7 @@ public struct TonnerreIndex {
    - Parameter filePath: a path to a file location where the index can be located or created
    - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
   */
-  public init(filePath: String, indexType: TonnerreIndexType, writable: Bool = false) {
+  public init?(filePath: String, indexType: TonnerreIndexType, writable: Bool = false) {
     let path = URL(fileURLWithPath: filePath)
     self.init(filePath: path, indexType: indexType, writable: writable)
   }
@@ -35,18 +35,18 @@ public struct TonnerreIndex {
    - Parameter filePath: a path to a file location where the index can be located or created
    - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
    */
-  public init(filePath: URL, indexType: TonnerreIndexType, writable: Bool = false) {
+  public init?(filePath: URL, indexType: TonnerreIndexType, writable: Bool = false) {
     self.path = filePath
     self.type = indexType
     let name = filePath.lastPathComponent as CFString
     let url = filePath as CFURL
     if let foundIndexFile = SKIndexOpenWithURL(url, name, writable)?.takeRetainedValue() {
       indexFile = foundIndexFile
-    } else {
+    } else if writable {
       let indexType = SKIndexType(kSKIndexInverted.rawValue)
       indexFile = SKIndexCreateWithURL(url, name, indexType, nil).takeRetainedValue()
-    }
-    SKLoadDefaultExtractorPlugIns()
+    } else { return nil }
+    if type == .metadata && writable { SKLoadDefaultExtractorPlugIns() }
   }
   /**
    Add a single document from a given directory path
@@ -73,16 +73,20 @@ public struct TonnerreIndex {
     if !fileManager.fileExists(atPath: atPath.path) {
       throw TonnerreIndexError.fileNotExist(atPath: atPath.path)
     }
-    if atPath.lastPathComponent.starts(with: ".") { return true }
-    let fileName = atPath.lastPathComponent
-    let fileURL = atPath as CFURL
-    guard
-      let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue()
-      else { return false }
-    defer { SKIndexFlush(indexFile) }
-    let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
-    let textContent: CFString? = type == .nameOnly ? (fileName + " \(additionalNote)") as CFString : nil
-    return addMethod(indexFile, document, textContent, true)
+    var addResult: Bool = false
+    autoreleasepool {
+      if atPath.lastPathComponent.starts(with: ".") { addResult = true; return }
+      let fileName = atPath.lastPathComponent
+      let fileURL = atPath as CFURL
+      guard
+        let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue()
+      else { addResult = false; return }
+      defer { SKIndexFlush(indexFile) }
+      let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
+      let textContent: CFString? = type == .nameOnly ? (fileName + " \(additionalNote)") as CFString : nil
+      addResult = addMethod(indexFile, document, textContent, true)
+    }
+    return addResult
   }
   /**
    Search documents with a given query
@@ -94,7 +98,7 @@ public struct TonnerreIndex {
    - Returns: An array of URLs to the found documents
   */
   public func search(query: String, limit: Int, options: TonnerreSearchOptions..., timeLimit: Double = 1) -> [URL] {
-    let skOptions = options.map({$0.rawValue}).reduce(0, |)
+    let skOptions = options.map{ $0.rawValue }.reduce(0, |)
     let searchQuery = SKSearchCreate(indexFile, query as CFString, skOptions).takeRetainedValue()
     var foundDocIDs = [SKDocumentID](repeating: 0, count: limit)
     var foundScores = [Float](repeating: 0, count: limit)
@@ -103,10 +107,10 @@ public struct TonnerreIndex {
     guard foundCount > 0 else { return [] }
     var foundURLs = [Unmanaged<CFURL>?](repeating: nil, count: foundCount)
     SKIndexCopyDocumentURLsForDocumentIDs(indexFile, foundCount, &foundDocIDs, &foundURLs)
-    let extractedURLs = foundURLs.map({ $0?.takeRetainedValue() as URL? })
-    let keptURLs = zip(foundScores, extractedURLs).filter({ $0.1 != nil })
-    let sortedByScores = keptURLs.sorted(by: { $0.0 > $1.0 })
-    let finalURLs = sortedByScores.compactMap({ $0.1 })
+    let extractedURLs = foundURLs.map { $0?.takeRetainedValue() as URL? }
+    let keptURLs = zip(foundScores, extractedURLs).filter { $0.1 != nil }
+    let sortedByScores = keptURLs.sorted { $0.0 > $1.0 }
+    let finalURLs = sortedByScores.compactMap { $0.1 }
     return finalURLs
   }
   
