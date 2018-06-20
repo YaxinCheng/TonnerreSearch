@@ -82,7 +82,7 @@ public enum TonnerreIndexType {
 
 TonnerreIndexType.metadata uses the default spotlight extractor to read document contents, users have no control of how the content should be read or what should be read. 
 
-> WARNING: Using metadata mode to load huge PDF files would consume a large amount of memory. Using autoreleasingpool to wrap up the addDocument function is a good choice.
+> WARNING: Using metadata mode to load huge PDF files would consume a large amount of memory.
 
 #### TonnerreIndexError.swift
 
