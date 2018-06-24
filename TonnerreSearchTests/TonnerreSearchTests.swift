@@ -89,13 +89,13 @@ class TonnerreSearchTests: XCTestCase {
     defer {
       try? FileManager.default.removeItem(atPath: path)
     }
-    let shouldBeZero = nameOnlyIndexFile.search(query: "question", limit: 2, options: .defaultOption)
+    let shouldBeZero = nameOnlyIndexFile.search(query: "question", limit: 2, options: .default)
     XCTAssert(shouldBeZero.count == 0, "Name only search should return 0 result. Actual: \(shouldBeZero)")
-    let anotherZero = withContentIndexFile.search(query: "duplicate", limit: 2, options: .defaultOption)
+    let anotherZero = withContentIndexFile.search(query: "duplicate", limit: 2, options: .default)
     XCTAssert(anotherZero.count == 0, "Content search should return 0 result. Actual: \(anotherZero)")
-    let anotherNonZero = withContentIndexFile.search(query: "nobler", limit: 2, options: .defaultOption)
+    let anotherNonZero = withContentIndexFile.search(query: "nobler", limit: 2, options: .default)
     XCTAssert(anotherNonZero.count != 0, "Content search should find at least one result. Actual: \(anotherNonZero)")
-    let shouldNotBeZero = nameOnlyIndexFile.search(query: "testFile*", limit: 2, options: .defaultOption)
+    let shouldNotBeZero = nameOnlyIndexFile.search(query: "testFile*", limit: 2, options: .default)
     XCTAssert(shouldNotBeZero.count != 0, "Name only search should find at least one result. Actual: \(shouldNotBeZero)")
   }
   
@@ -117,18 +117,20 @@ class TonnerreSearchTests: XCTestCase {
     XCTAssert(nameOnlyIndexFile.removeDocument(atPath: path))
   }
   
-//  func testPerformance() {
-//    let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//    self.measure {
-//      do {
-//        let documentsResult = try nameOnlyIndexFile.addDocuments(dirPath: path)
-//      } catch TonnerreIndexError.indexingError(atPath: let failedPath) {
-//        print("Failed at \(failedPath)")
-//      } catch TonnerreIndexError.fileNotExist(atPath: let failedPath) {
-//        print("File not found at \(failedPath)")
-//      } catch {
-//        print("other error: \(error)")
-//      }
-//    }
-//  }
+  func testPerformance() {
+    var paths = [FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!]
+    self.measure {
+      let metaIndex = TonnerreIndex(filePath: "/tmp/metaIndex", indexType: .metadata, writable: true)!
+      while !paths.isEmpty {
+        let processing = paths.removeFirst()
+        if processing.hasDirectoryPath {
+          let content = (try? FileManager.default.contentsOfDirectory(atPath: processing.path)) ?? []
+          paths += content.map { processing.appendingPathComponent($0) }
+        } else {
+          _ = try? metaIndex.addDocument(atPath: processing)
+        }
+      }
+    }
+    try? FileManager.default.removeItem(atPath: "/tmp/metaIndex")
+  }
 }

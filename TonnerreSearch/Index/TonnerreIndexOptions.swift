@@ -9,7 +9,7 @@
 import Foundation
 
 public enum TonnerreSearchOptions: SKSearchOptions {
-  case defaultOption = 0
+  case `default` = 0
   case noRelevanceScore = 1
   case spaceMeansOR = 2
   case findSimilar = 4
