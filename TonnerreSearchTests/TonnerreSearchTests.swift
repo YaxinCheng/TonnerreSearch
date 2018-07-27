@@ -133,4 +133,26 @@ class TonnerreSearchTests: XCTestCase {
     }
     try? FileManager.default.removeItem(atPath: "/tmp/metaIndex")
   }
+  
+  func testSearchNonLatin() {
+    let path = "/tmp/Chinese中文文件.txt"
+    let fileContent = "random words not necessary".data(using: .utf8)!
+    guard FileManager.default.createFile(atPath: path, contents: fileContent, attributes: nil) else {
+      assert(false, "File create failure")
+    }
+    do {
+      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path)
+      XCTAssert(nameOnlyResult, "name only add result")
+    } catch TonnerreIndexError.fileNotExist {
+      assert(false, "Cannot locate file")
+    } catch {
+      assert(false, "Other error happened")
+    }
+    defer {
+      try? FileManager.default.removeItem(atPath: path)
+    }
+    let shouldFindOne = nameOnlyIndexFile.search(query: "zhong wen", limit: 2, options: .default)
+    print(shouldFindOne)
+    XCTAssert(shouldFindOne.count == 1, "Found one")
+  }
 }
