@@ -77,13 +77,15 @@ public struct TonnerreIndex {
     autoreleasepool {
       if atPath.lastPathComponent.starts(with: ".") { addResult = true; return }
       let fileName = atPath.lastPathComponent
+      let fileNameLatinized = fileName.applyingTransform(.toLatin, reverse: false)?.applyingTransform(.stripDiacritics, reverse: false)?.applyingTransform(.stripCombiningMarks, reverse: false) ?? fileName
       let fileURL = atPath as CFURL
       guard
         let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue()
       else { addResult = false; return }
       defer { SKIndexFlush(indexFile) }
+      let indexNotes = Set([fileName, fileNameLatinized, additionalNote])
       let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
-      let textContent: CFString? = type == .nameOnly ? (fileName + " \(additionalNote)") as CFString : nil
+      let textContent: CFString? = type == .nameOnly ? indexNotes.joined(separator: " ") as CFString : nil
       addResult = addMethod(indexFile, document, textContent, true)
     }
     return addResult
