@@ -43,8 +43,7 @@ public struct TonnerreIndex {
     if let foundIndexFile = SKIndexOpenWithURL(url, name, writable)?.takeRetainedValue() {
       indexFile = foundIndexFile
     } else if writable {
-      let indexType = SKIndexType(kSKIndexInverted.rawValue)
-      indexFile = SKIndexCreateWithURL(url, name, indexType, nil).takeRetainedValue()
+      indexFile = SKIndexCreateWithURL(url, name, kSKIndexInverted, nil).takeRetainedValue()
     } else { return nil }
     if type == .metadata && writable { SKLoadDefaultExtractorPlugIns() }
   }
@@ -56,9 +55,9 @@ public struct TonnerreIndex {
    - Throws: `TonnerreIndexError.fileNotExist` if the file cannot be located
    - Returns: A bool values indicating the success of adding to index
    */
-  public func addDocument(atPath: String, additionalNote: String = "") throws -> Bool {
-    let path = URL(fileURLWithPath: atPath)
-    return try addDocument(atPath: path, additionalNote: additionalNote)
+  public func addDocument(atPath path: String, additionalNote: String = "") throws -> Bool {
+    let url = URL(fileURLWithPath: path)
+    return try addDocument(atPath: url, additionalNote: additionalNote)
   }
   /**
    Add a single document from a given directory path
@@ -68,25 +67,24 @@ public struct TonnerreIndex {
    - Throws: `TonnerreIndexError.fileNotExist` if the file cannot be located
    - Returns: A bool values indicating the success of adding to index
    */
-  public func addDocument(atPath: URL, additionalNote: String = "") throws -> Bool {
+  public func addDocument(atPath path: URL, additionalNote: String = "") throws -> Bool {
     let fileManager = FileManager.default
-    if !fileManager.fileExists(atPath: atPath.path) {
-      throw TonnerreIndexError.fileNotExist(atPath: atPath.path)
+    if !fileManager.fileExists(atPath: path.path) {
+      throw TonnerreIndexError.fileNotExist(atPath: path.path)
     }
     var addResult: Bool = false
     autoreleasepool {
-      if atPath.lastPathComponent.starts(with: ".") { addResult = true; return }
-      let fileName = atPath.lastPathComponent
+      let fileName = path.deletingPathExtension().lastPathComponent
       let fileNameLatinized = fileName.applyingTransform(.toLatin, reverse: false)?.applyingTransform(.stripDiacritics, reverse: false)?.applyingTransform(.stripCombiningMarks, reverse: false) ?? fileName
-      let fileURL = atPath as CFURL
+      let fileURL = path as CFURL
       guard
         let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue()
       else { addResult = false; return }
-      defer { SKIndexFlush(indexFile) }
       let indexNotes = Set([fileName, fileNameLatinized, additionalNote])
       let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
       let textContent: CFString? = type == .nameOnly ? indexNotes.joined(separator: " ") as CFString : nil
-      addResult = addMethod(indexFile, document, textContent, true)
+      addResult = addMethod(indexFile, document, textContent, false)
+      SKIndexFlush(indexFile)
     }
     return addResult
   }
@@ -104,7 +102,7 @@ public struct TonnerreIndex {
     let searchQuery = SKSearchCreate(indexFile, query as CFString, skOptions).takeRetainedValue()
     var foundDocIDs = [SKDocumentID](repeating: 0, count: limit)
     var foundScores = [Float](repeating: 0, count: limit)
-    var foundCount = 0 as CFIndex
+    var foundCount: CFIndex = 0
     let _ = SKSearchFindMatches(searchQuery, limit as CFIndex, &foundDocIDs, &foundScores, timeLimit as CFTimeInterval, &foundCount)
     guard foundCount > 0 else { return [] }
     var foundURLs = [Unmanaged<CFURL>?](repeating: nil, count: foundCount)
@@ -121,8 +119,8 @@ public struct TonnerreIndex {
    - Parameter atPath: the path of the file needs to be removed
    - Returns: The result of remove
   */
-  public func removeDocument(atPath: String) -> Bool {
-    let fileURL = URL(fileURLWithPath: atPath)
+  public func removeDocument(atPath path: String) -> Bool {
+    let fileURL = URL(fileURLWithPath: path)
     return removeDocument(atPath: fileURL)
   }
   
@@ -131,8 +129,8 @@ public struct TonnerreIndex {
    - Parameter atPath: the path of the file needs to be removed
    - Returns: The result of remove
    */
-  public func removeDocument(atPath: URL) -> Bool {
-    guard let document = SKDocumentCreateWithURL(atPath as CFURL)?.takeRetainedValue() else { return false }
+  public func removeDocument(atPath path: URL) -> Bool {
+    guard let document = SKDocumentCreateWithURL(path as CFURL)?.takeRetainedValue() else { return false }
     let result = SKIndexRemoveDocument(indexFile, document)
     SKIndexCompact(indexFile)
     return result
