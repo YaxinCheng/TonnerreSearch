@@ -43,12 +43,12 @@ This part introduces the basic index interfaces, and things need to be warned
 Following APIs are provided:
 
 ```swift
-init(filePath: String, indexType: TonnerreIndexType, writable: Bool)
-init(filePath: URL, indexType: TonnerreIndexType, writable: Bool)
-func addDocument(atPath: String, additionalNote: String) throws -> Bool
-func addDocument(atPath: URL, additionalNote: String) throws -> Bool
-func removeDocument(atPath: String) -> Bool
-func removeDocument(atPath: URL) -> Bool
+init?(filePath: String, indexType: TonnerreIndexType, writable: Bool)
+init?(filePath: URL, indexType: TonnerreIndexType, writable: Bool)
+func addDocument(atPath path: String, additionalNote: String) throws -> Bool
+func addDocument(atPath path: URL, additionalNote: String) throws -> Bool
+func removeDocument(atPath path: String) -> Bool
+func removeDocument(atPath path: URL) -> Bool
 func search(query: String, limit: Int, options: TonnerreSearchOptions..., timeLimit: Double) -> [URL]
 ```
 
@@ -63,7 +63,7 @@ Only **writable** instances can `addDocument` or `removeDocument` from the index
 ```swift
 // Used during a search, one or more options may be selected
 public enum TonnerreSearchOptions: SKSearchOptions {
-    case defaultOption// Most default behaviour, space means AND, with relevance score
+    case `default`// Most default behaviour, space means AND, with relevance score
     case noRelevanceScore// Search without relevance score
     case spaceMeansOR// Space means OR instead of AND
     case findSimilar// Finds documents similar to the query, ignoring all search operators like AND OR
@@ -87,6 +87,14 @@ TonnerreIndexType.metadata uses the default spotlight extractor to read document
 #### TonnerreIndexError.swift
 
 Throw out an error when the file to index does not exist
+
+```swift
+public enum TonnerreIndexError: Error {
+    case fileNotExist(atPath: String)
+}
+```
+
+
 
 ### File System Event Part
 
