@@ -34,8 +34,28 @@ public enum TonnerreFSEvent: UInt32 {
    - Returns: an array of TonnerreFSEvent retreived from the mixed flag
   */
   static func segregate(flag: UInt32) -> [TonnerreFSEvent] {
-    return (0 ..< 11).map({// Generate all possible TonnerreFSEvent UInt32 values, then & with the flag
+    return (0 ..< 11).map {// Generate all possible TonnerreFSEvent UInt32 values, then & with the flag
       flag & (0x100 << $0)
-    }).filter({ $0 != 0 }).compactMap(TonnerreFSEvent.init)
+    }.filter { $0 != 0 } .compactMap(TonnerreFSEvent.init)
+  }
+}
+
+public extension Array where Element == TonnerreFSEvent {
+  /**
+   Returns a Boolean value indicating whether the sequence contains the given element.
+   ```
+   // This example checks to see whether a favorite actor is in an array storing a movie’s cast.
+   let cast = ["Vivien", "Marlon", "Kim", "Karl"]
+   print(cast.contains("Marlon"))
+   // Prints "true"
+   print(cast.contains("James"))
+   // Prints "false
+   ```
+   - parameter element: The element to find in the sequence.
+   - returns: true if the element was found in the sequence; otherwise, false.
+   */
+  public func contains(_ element: Element) -> Bool {
+    let union = self.reduce(0) { $0 | $1.rawValue }
+    return union & element.rawValue == 1
   }
 }
