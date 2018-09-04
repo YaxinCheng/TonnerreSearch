@@ -56,6 +56,6 @@ public extension Array where Element == TonnerreFSEvent {
    */
   public func contains(_ element: Element) -> Bool {
     let union = self.reduce(0) { $0 | $1.rawValue }
-    return union & element.rawValue == 1
+    return union & element.rawValue == element.rawValue
   }
 }
