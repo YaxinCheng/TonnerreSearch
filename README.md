@@ -136,6 +136,14 @@ enum TonnerreFSEvent {// Different types of File System Event
   static func segregate(flag: UInt32) -> [TonnerreFSEvent]
 }
 ```
+> contains function in Array<TonnerreFSEvent> is overrided for a better performance
+
+```swift
+public extension Array where Element == TonnerreFSEvent {
+    public func contains(_ element: Element) -> Bool
+}
+```
+
 
 ## License
 
