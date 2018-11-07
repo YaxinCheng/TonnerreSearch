@@ -97,9 +97,8 @@ public struct TonnerreIndex {
    - Parameter timeLimit: the number of seconds the search can run in the maximum. 1 by default
    - Returns: An array of URLs to the found documents
   */
-  public func search(query: String, limit: Int, options: TonnerreSearchOptions..., timeLimit: Double = 1) -> [URL] {
-    let skOptions = options.map{ $0.rawValue }.reduce(0, |)
-    let searchQuery = SKSearchCreate(indexFile, query as CFString, skOptions).takeRetainedValue()
+  public func search(query: String, limit: Int, options: TonnerreSearchOptions, timeLimit: Double = 1) -> [URL] {
+    let searchQuery = SKSearchCreate(indexFile, query as CFString, options.rawValue).takeRetainedValue()
     var foundDocIDs = [SKDocumentID](repeating: 0, count: limit)
     var foundScores = [Float](repeating: 0, count: limit)
     var foundCount: CFIndex = 0

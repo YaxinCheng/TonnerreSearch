@@ -22,7 +22,7 @@ public class TonnerreFSDetector {
   /**
   The type of data returned in the callback. (path, [eventFlag])
   */
-  public typealias event = (path: String, flags: [TonnerreFSEvent])
+  public typealias event = (path: String, flags: TonnerreFSEvents)
   
   /**
    Constructe a File System Detector
@@ -40,7 +40,7 @@ public class TonnerreFSDetector {
     streamCallBack = { (stream, clientCallBackInfo, numEvents, eventPaths, eventFlags, eventIds) in
       let cString = eventPaths.assumingMemoryBound(to: UnsafePointer<CChar>.self)// void* -> char**
       let filePaths = (0 ..< numEvents).map { String(cString: cString[$0]) }
-      let fileFlags = (0 ..< numEvents).map { TonnerreFSEvent.segregate(flag: eventFlags[$0]) }
+      let fileFlags = (0 ..< numEvents).map { TonnerreFSEvents(rawValue: eventFlags[$0]) }
       let filteredEvents = zip(filePaths, fileFlags).filter {
         let components = $0.0.components(separatedBy: "/")
         let hiddenFile = (components.last ?? "").starts(with: ".")

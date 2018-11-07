@@ -8,14 +8,20 @@
 
 import Foundation
 
-public enum TonnerreSearchOptions: SKSearchOptions {
-  case `default` = 0
-  case noRelevanceScore = 1
-  case spaceMeansOR = 2
-  case findSimilar = 4
-}
-
 public enum TonnerreIndexType {
   case nameOnly
   case metadata
+}
+
+public struct TonnerreSearchOptions: OptionSet {
+  public var rawValue: SKSearchOptions
+  
+  public init(rawValue: SKSearchOptions) {
+    self.rawValue = rawValue
+  }
+  
+  public static let `default`        = TonnerreSearchOptions(rawValue: 0)
+  public static let noRelevanceScore = TonnerreSearchOptions(rawValue: 1)
+  public static let spaceMeansOR     = TonnerreSearchOptions(rawValue: 2)
+  public static let findSimilar      = TonnerreSearchOptions(rawValue: 4)
 }
