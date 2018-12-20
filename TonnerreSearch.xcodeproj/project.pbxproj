@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		144032FB21CB45CA0026E822 /* URL+HiddenDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 144032FA21CB45C90026E822 /* URL+HiddenDetection.swift */; };
 		14716571208E463B005EACD0 /* TonnerreFSDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716570208E463B005EACD0 /* TonnerreFSDetector.swift */; };
 		14716576208E4A9C005EACD0 /* TonnerreFSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716575208E4A9C005EACD0 /* TonnerreFSTests.swift */; };
 		1471657A208EABE3005EACD0 /* TonnerreFSEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */; };
@@ -28,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		144032FA21CB45C90026E822 /* URL+HiddenDetection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+HiddenDetection.swift"; sourceTree = "<group>"; };
 		14716570208E463B005EACD0 /* TonnerreFSDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreFSDetector.swift; sourceTree = "<group>"; };
 		14716575208E4A9C005EACD0 /* TonnerreFSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreFSTests.swift; sourceTree = "<group>"; };
 		14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreFSEvent.swift; sourceTree = "<group>"; };
@@ -75,6 +77,7 @@
 			children = (
 				14716570208E463B005EACD0 /* TonnerreFSDetector.swift */,
 				14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */,
+				144032FA21CB45C90026E822 /* URL+HiddenDetection.swift */,
 			);
 			path = "FS Detector";
 			sourceTree = "<group>";
@@ -232,6 +235,7 @@
 				14A9F60F208D011B00DF3FC9 /* TonnerreIndex.swift in Sources */,
 				14716571208E463B005EACD0 /* TonnerreFSDetector.swift in Sources */,
 				1471657A208EABE3005EACD0 /* TonnerreFSEvent.swift in Sources */,
+				144032FB21CB45CA0026E822 /* URL+HiddenDetection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

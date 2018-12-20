@@ -9,12 +9,9 @@
 import Foundation
 import CoreServices
 
-/**
- It supposes adding, searching, and removing one or several documents efficiently
-*/
+///TonnerreIndex supports adding, searching, and removing one or several documents efficiently
 public struct TonnerreIndex {
   private let indexFile: SKIndex
-  private let path: URL
   public let type: TonnerreIndexType
   private typealias documentAddFunc = (SKIndex, SKDocument, CFString?, Bool) -> Bool
   
@@ -36,14 +33,14 @@ public struct TonnerreIndex {
    - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
    */
   public init?(filePath: URL, indexType: TonnerreIndexType, writable: Bool = false) {
-    self.path = filePath
     self.type = indexType
     let name = filePath.lastPathComponent as CFString
     let url = filePath as CFURL
     if let foundIndexFile = SKIndexOpenWithURL(url, name, writable)?.takeRetainedValue() {
       indexFile = foundIndexFile
-    } else if writable {
-      indexFile = SKIndexCreateWithURL(url, name, kSKIndexInverted, nil).takeRetainedValue()
+    } else if writable,
+      let indexFileRef = SKIndexCreateWithURL(url, name, kSKIndexInverted, nil) {
+      indexFile = indexFileRef.takeRetainedValue()
     } else { return nil }
     if type == .metadata && writable { SKLoadDefaultExtractorPlugIns() }
   }
@@ -133,5 +130,10 @@ public struct TonnerreIndex {
     let result = SKIndexRemoveDocument(indexFile, document)
     SKIndexCompact(indexFile)
     return result
+  }
+  
+  /// Close the index file
+  public func close() {
+    SKIndexClose(indexFile)
   }
 }

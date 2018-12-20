@@ -36,16 +36,14 @@ public class TonnerreFSDetector {
   
   public init(pathes: [String], callback: @escaping ([event])->Void) {
     self.callback = callback
-    monitoringPaths = pathes.map({$0 as CFString}) as CFArray
+    monitoringPaths = pathes.map {$0 as CFString} as CFArray
     streamCallBack = { (stream, clientCallBackInfo, numEvents, eventPaths, eventFlags, eventIds) in
       let cString = eventPaths.assumingMemoryBound(to: UnsafePointer<CChar>.self)// void* -> char**
       let filePaths = (0 ..< numEvents).map { String(cString: cString[$0]) }
       let fileFlags = (0 ..< numEvents).map { TonnerreFSEvents(rawValue: eventFlags[$0]) }
       let filteredEvents = zip(filePaths, fileFlags).filter {
-        let components = $0.0.components(separatedBy: "/")
-        let hiddenFile = (components.last ?? "").starts(with: ".")
-        let insidePack = $0.0.range(of: "\\.(app|tne)/.+", options: .regularExpression, range: nil, locale: nil) != nil
-        return !hiddenFile && !insidePack
+        let fileURL = URL(fileURLWithPath: $0.0)
+        return !fileURL.isInPackageOrHidden && !fileURL.isHidden
       }
       let lastEventID = eventIds[numEvents - 1]
       UserDefaults.standard.set(lastEventID, forKey: "LastEventIDObserved")

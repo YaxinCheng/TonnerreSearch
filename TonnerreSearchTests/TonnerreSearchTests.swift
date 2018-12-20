@@ -29,7 +29,9 @@ class TonnerreSearchTests: XCTestCase {
   override func tearDown() {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     do {
+      nameOnlyIndexFile.close()
       try FileManager.default.removeItem(atPath: nameOnlyIndexPath)
+      withContentIndexFile.close()
       try FileManager.default.removeItem(atPath: withContentIndexPath)
     } catch {
       print("IndexFile failed to delete")
@@ -117,22 +119,22 @@ class TonnerreSearchTests: XCTestCase {
     XCTAssert(nameOnlyIndexFile.removeDocument(atPath: path))
   }
   
-  func testPerformance() {
-    var paths = [FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!]
-    self.measure {
-      let metaIndex = TonnerreIndex(filePath: "/tmp/metaIndex", indexType: .metadata, writable: true)!
-      while !paths.isEmpty {
-        let processing = paths.removeFirst()
-        if processing.hasDirectoryPath {
-          let content = (try? FileManager.default.contentsOfDirectory(atPath: processing.path)) ?? []
-          paths += content.map { processing.appendingPathComponent($0) }
-        } else {
-          _ = try? metaIndex.addDocument(atPath: processing)
-        }
-      }
-    }
-    try? FileManager.default.removeItem(atPath: "/tmp/metaIndex")
-  }
+//  func testPerformance() {
+//    var paths = [FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!]
+//    self.measure {
+//      let metaIndex = TonnerreIndex(filePath: "/tmp/metaIndex", indexType: .metadata, writable: true)!
+//      while !paths.isEmpty {
+//        let processing = paths.removeFirst()
+//        if processing.hasDirectoryPath {
+//          let content = (try? FileManager.default.contentsOfDirectory(atPath: processing.path)) ?? []
+//          paths += content.map { processing.appendingPathComponent($0) }
+//        } else {
+//          _ = try? metaIndex.addDocument(atPath: processing)
+//        }
+//      }
+//    }
+//    try? FileManager.default.removeItem(atPath: "/tmp/metaIndex")
+//  }
   
   func testSearchNonLatin() {
     let path = "/tmp/Chinese中文文件.txt"
