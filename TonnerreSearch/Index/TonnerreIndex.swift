@@ -16,10 +16,11 @@ public struct TonnerreIndex {
   private typealias documentAddFunc = (SKIndex, SKDocument, CFString?, Bool) -> Bool
   
   /**
-   Initialize a tonerre index with given filePath
+   Initialize a tonerre index with given filePath. If there is already an index file, load it. If not, create one
    
    - Parameter filePath: a path to a file location where the index can be located or created
    - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
+   - Parameter writable: true if this instance can write to the index file
   */
   public init?(filePath: String, indexType: TonnerreIndexType, writable: Bool = false) {
     let path = URL(fileURLWithPath: filePath)
@@ -27,10 +28,11 @@ public struct TonnerreIndex {
   }
   
   /**
-   Initialize a tonerre index with given filePath
+   Initialize a tonerre index with given filePath. If there is already an index file, load it. If not, create one
    
    - Parameter filePath: a path to a file location where the index can be located or created
    - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
+   - Parameter writable: true if this instance can write to the index file
    */
   public init?(filePath: URL, indexType: TonnerreIndexType, writable: Bool = false) {
     self.type = indexType

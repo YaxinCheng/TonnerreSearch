@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		144032FB21CB45CA0026E822 /* URL+HiddenDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 144032FA21CB45C90026E822 /* URL+HiddenDetection.swift */; };
+		144032FD21CC1B070026E822 /* FilterOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 144032FC21CC1B070026E822 /* FilterOptions.swift */; };
 		14716571208E463B005EACD0 /* TonnerreFSDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716570208E463B005EACD0 /* TonnerreFSDetector.swift */; };
 		14716576208E4A9C005EACD0 /* TonnerreFSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716575208E4A9C005EACD0 /* TonnerreFSTests.swift */; };
 		1471657A208EABE3005EACD0 /* TonnerreFSEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */; };
@@ -30,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		144032FA21CB45C90026E822 /* URL+HiddenDetection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+HiddenDetection.swift"; sourceTree = "<group>"; };
+		144032FC21CC1B070026E822 /* FilterOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterOptions.swift; sourceTree = "<group>"; };
 		14716570208E463B005EACD0 /* TonnerreFSDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreFSDetector.swift; sourceTree = "<group>"; };
 		14716575208E4A9C005EACD0 /* TonnerreFSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreFSTests.swift; sourceTree = "<group>"; };
 		14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonnerreFSEvent.swift; sourceTree = "<group>"; };
@@ -77,6 +79,7 @@
 			children = (
 				14716570208E463B005EACD0 /* TonnerreFSDetector.swift */,
 				14716579208EABE3005EACD0 /* TonnerreFSEvent.swift */,
+				144032FC21CC1B070026E822 /* FilterOptions.swift */,
 				144032FA21CB45C90026E822 /* URL+HiddenDetection.swift */,
 			);
 			path = "FS Detector";
@@ -187,6 +190,7 @@
 					};
 					14A9F5FC208D006600DF3FC9 = {
 						CreatedOnToolsVersion = 9.3;
+						LastSwiftMigration = 1010;
 					};
 				};
 			};
@@ -234,6 +238,7 @@
 				14A9F611208D0B8100DF3FC9 /* TonnerreIndexError.swift in Sources */,
 				14A9F60F208D011B00DF3FC9 /* TonnerreIndex.swift in Sources */,
 				14716571208E463B005EACD0 /* TonnerreFSDetector.swift in Sources */,
+				144032FD21CC1B070026E822 /* FilterOptions.swift in Sources */,
 				1471657A208EABE3005EACD0 /* TonnerreFSEvent.swift in Sources */,
 				144032FB21CB45CA0026E822 /* URL+HiddenDetection.swift in Sources */,
 			);
@@ -445,7 +450,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ycheng.TonnerreSearchTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -463,7 +468,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ycheng.TonnerreSearchTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};

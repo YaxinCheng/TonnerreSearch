@@ -9,12 +9,12 @@
 import Foundation
 
 extension URL {
-  /// Check if the current fileURL is inside a package or a hidden folder
-  var isInPackageOrHidden: Bool {
-    let isPackageOrHidden: (URL)->Bool = {
+  /// Returns true if the current fileURL is inside a package
+  var isInPackage: Bool {
+    let isPackage: (URL)->Bool = {
       do {
-        let resources = try $0.resourceValues(forKeys: [.isHiddenKey, .isPackageKey])
-        return (resources.isHidden ?? false) || (resources.isPackage ?? false)
+        let resources = try $0.resourceValues(forKeys: [.isPackageKey])
+        return resources.isPackage ?? false
       } catch {
         return false
       }
@@ -22,12 +22,22 @@ extension URL {
     var baseURL = URL(fileURLWithPath: "/")
     for pathComponent in deletingLastPathComponent().pathComponents.dropFirst() {
       baseURL.appendPathComponent(pathComponent)
-      if isPackageOrHidden(baseURL) { return true }
+      if isPackage(baseURL) { return true }
     }
     return false
   }
   
-  /// Check if the current fileURL is a hidden file
+  /// Returns true if the current URL is inside a hidden directory
+  var isInHidden: Bool {
+    var baseURL = URL(fileURLWithPath: "/")
+    for pathComponent in deletingPathExtension().pathComponents.dropFirst() {
+      baseURL.appendPathComponent(pathComponent)
+      if baseURL.isHidden { return true }
+    }
+    return false
+  }
+  
+  /// Returns true if the current fileURL is a hidden file
   var isHidden: Bool {
     do {
       let resources = try resourceValues(forKeys: [.isHiddenKey])

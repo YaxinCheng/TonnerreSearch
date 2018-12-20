@@ -8,8 +8,11 @@
 
 import Foundation
 
+/// Index file types
 public enum TonnerreIndexType {
+  /// This type of index will only keep the file name as query information
   case nameOnly
+  /// This type of index will only keep the file content as query information
   case metadata
 }
 

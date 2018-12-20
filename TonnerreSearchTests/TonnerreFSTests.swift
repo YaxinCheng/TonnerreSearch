@@ -16,23 +16,16 @@ class TonnerreFSTests: XCTestCase {
   let testFolder = NSHomeDirectory() + "/testFolder"
   
   override func setUp() {
-    do {
-      try FileManager.default.createDirectory(atPath: testFolder, withIntermediateDirectories: true, attributes: nil)
-    } catch {
-      print(error)
-      fatalError("Folder failed to create")
-    }
-    fsDetector = TonnerreFSDetector(pathes: testFolder, callback: fileEventsOccured)
+    try! FileManager.default.createDirectory(atPath: testFolder, withIntermediateDirectories: true, attributes: nil)
+    fsDetector = TonnerreFSDetector(pathes: testFolder,
+                                    filterOptions: [.inHidden, .inPackage, .hidden],
+                                    callback: fileEventsOccured)
     fsDetector.start()
   }
   
   override func tearDown() {
-    do {
-      try FileManager.default.removeItem(at: URL(fileURLWithPath: testFolder))
-    } catch {
-      print(error)
-    }
     fsDetector.stop()
+    try! FileManager.default.removeItem(at: URL(fileURLWithPath: testFolder))
   }
   
   func fileEventsOccured(events: [TonnerreFSDetector.event]) {
@@ -65,7 +58,24 @@ class TonnerreFSTests: XCTestCase {
   
   func testInsideApp() {
     let path = testFolder + "/random.app/randomFileUsedToDetectCorrectness"
-    let appDir = testFolder + "/random.framework/"
+    let appDir = testFolder + "/random.app/"
+    try? FileManager.default.createDirectory(atPath: appDir, withIntermediateDirectories: true, attributes: nil)
+    _ = FileManager.default.createFile(atPath: path, contents: "Hello World".data(using: .utf8)!, attributes: nil)
+    let _ = expectation(forNotification: .TonnerreFSEventArrives, object: nil) {
+      guard
+        let info = $0.userInfo as? [String: [TonnerreFSDetector.event]],
+        let eventList = info["events"]
+        else { return false }
+      return !eventList.map({$0.path}).contains(path)
+    }
+    waitForExpectations(timeout: 6, handler: nil)
+    try? FileManager.default.removeItem(atPath: path)
+    try? FileManager.default.removeItem(atPath: appDir)
+  }
+  
+  func testInHiddenPath() {
+    let path = testFolder + "/.random/randomFileUsedToDetectCorrectness"
+    let appDir = testFolder + "/.random/"
     try? FileManager.default.createDirectory(atPath: appDir, withIntermediateDirectories: true, attributes: nil)
     _ = FileManager.default.createFile(atPath: path, contents: "Hello World".data(using: .utf8)!, attributes: nil)
     let _ = expectation(forNotification: .TonnerreFSEventArrives, object: nil) {
@@ -94,6 +104,15 @@ class TonnerreFSTests: XCTestCase {
     }
     waitForExpectations(timeout: 6, handler: nil)
     try? FileManager.default.removeItem(atPath: path)
+  }
+  
+  func testFilterOptions() {
+    let hidden = FilterOptions(rawValue: 1)
+    let inPackage = FilterOptions(rawValue: 2)
+    let inHidden = FilterOptions(rawValue: 4)
+    let hiddenAndInPackage: FilterOptions = [.hidden, inPackage]
+    XCTAssert(hiddenAndInPackage.contains([hidden, inPackage]))
+    XCTAssertFalse(hiddenAndInPackage.contains(inHidden))
   }
 }
 
