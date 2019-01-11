@@ -9,80 +9,128 @@
 import Foundation
 import CoreServices
 
-///TonnerreIndex supports adding, searching, and removing one or several documents efficiently
-public struct TonnerreIndex {
+/// TonnerreIndex supports adding, searching, and removing one or several documents efficiently
+public final class TonnerreIndex {
   private let indexFile: SKIndex
-  public let type: TonnerreIndexType
-  private typealias documentAddFunc = (SKIndex, SKDocument, CFString?, Bool) -> Bool
+  /// The path to the index file
+  public let path: URL
+  private var closed: Bool = false
   
-  /**
-   Initialize a tonerre index with given filePath. If there is already an index file, load it. If not, create one
-   
-   - Parameter filePath: a path to a file location where the index can be located or created
-   - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
-   - Parameter writable: true if this instance can write to the index file
-  */
-  public init?(filePath: String, indexType: TonnerreIndexType, writable: Bool = false) {
-    let path = URL(fileURLWithPath: filePath)
-    self.init(filePath: path, indexType: indexType, writable: writable)
+  private init(filePath: URL, indexFile: SKIndex) {
+    self.path = filePath
+    self.indexFile = indexFile
   }
   
   /**
-   Initialize a tonerre index with given filePath. If there is already an index file, load it. If not, create one
+   Create a tonerre index with given path
    
-   - Parameter filePath: a path to a file location where the index can be located or created
-   - Parameter indexType: the type of this index file. It defines the search of documents. Can be: nameOnly, metadata
-   - Parameter writable: true if this instance can write to the index file
+   - Parameter path: a path to a file location where the index can be created
+   - throws: When the path directs to a file which exists already
+   - returns: an instance pointing to the index
    */
-  public init?(filePath: URL, indexType: TonnerreIndexType, writable: Bool = false) {
-    self.type = indexType
-    let name = filePath.lastPathComponent as CFString
-    let url = filePath as CFURL
-    if let foundIndexFile = SKIndexOpenWithURL(url, name, writable)?.takeRetainedValue() {
-      indexFile = foundIndexFile
-    } else if writable,
-      let indexFileRef = SKIndexCreateWithURL(url, name, kSKIndexInverted, nil) {
-      indexFile = indexFileRef.takeRetainedValue()
-    } else { return nil }
-    if type == .metadata && writable { SKLoadDefaultExtractorPlugIns() }
+  public static func create(path: String) throws -> TonnerreIndex {
+    let path = URL(fileURLWithPath: path)
+    return try self.create(path: path)
+  }
+  
+  /**
+   Create a tonerre index with given path
+   
+   - Parameter path: a path to a file location where the index can be created
+   - throws: When the path directs to a file which exists already
+   - returns: an instance pointing to the index
+   */
+  public static func create(path: URL) throws -> TonnerreIndex {
+    guard
+      let indexFileRef = SKIndexCreateWithURL(path as CFURL, nil, kSKIndexInverted, nil)
+    else { throw TonnerreIndexError.fileCreateError }
+    let indexFile = indexFileRef.takeRetainedValue()
+    SKLoadDefaultExtractorPlugIns()
+    return TonnerreIndex(filePath: path, indexFile: indexFile)
+  }
+  
+  /**
+   Load a TonnerreIndex from a given path with a mode
+   
+   - parameter path: a path to a file location where the index can be created
+   - parameter mode: a mode if the instance is allowed to readOnly or can write to the index
+   - throws: TonnerreIndexError.fileOpenError when trying to open an index with writeAndRead mode, while it is already opened by some other process
+   - returns: an instance pointing to the index
+   */
+  public static func open(path: String, mode: OpenMode = .readOnly) throws -> TonnerreIndex {
+    let path = URL(fileURLWithPath: path)
+    return try self.open(path: path, mode: mode)
+  }
+  
+  /**
+   Load a TonnerreIndex from a given path with a mode
+   
+   - parameter path: a path to a file location where the index can be created
+   - parameter mode: a mode if the instance is allowed to readOnly or can write to the index
+   - throws: TonnerreIndexError.fileOpenError when trying to open an index with writeAndRead mode, while it is already opened by some other process
+   - returns: an instance pointing to the index
+   */
+  public static func open(path: URL, mode: OpenMode = .readOnly) throws -> TonnerreIndex {
+    guard
+      let indexFileRef = SKIndexOpenWithURL(path as CFURL, nil, mode.rawValue)
+    else { throw TonnerreIndexError.fileOpenError }
+    let indexFile = indexFileRef.takeRetainedValue()
+    if mode == .writeAndRead { SKLoadDefaultExtractorPlugIns() }
+    return TonnerreIndex(filePath: path, indexFile: indexFile)
   }
   /**
    Add a single document from a given directory path
    
-   - Parameter atPath: a path of the file needs to be added
+   - Parameter path: a path of the file needs to be added
+   - Parameter contentType: a indicator for either file name or file content should be added to the index
    - Parameter additionalNote: extra information the user may want to include in the index with this document
    - Throws: `TonnerreIndexError.fileNotExist` if the file cannot be located
    - Returns: A bool values indicating the success of adding to index
    */
-  public func addDocument(atPath path: String, additionalNote: String = "") throws -> Bool {
+  public func addDocument(atPath path: String,
+                          contentType: ContentType,
+                          additionalNote: String = "") throws -> Bool {
     let url = URL(fileURLWithPath: path)
-    return try addDocument(atPath: url, additionalNote: additionalNote)
+    return try addDocument(atPath: url,
+                           contentType: contentType,
+                           additionalNote: additionalNote)
   }
   /**
    Add a single document from a given directory path
    
    - Parameter atPath: a path of the file needs to be added
+   - Parameter contentType: a indicator for either file name or file content should be added to the index
    - Parameter additionalNote: extra information the user may want to include in the index with this document
    - Throws: `TonnerreIndexError.fileNotExist` if the file cannot be located
    - Returns: A bool values indicating the success of adding to index
    */
-  public func addDocument(atPath path: URL, additionalNote: String = "") throws -> Bool {
+  public func addDocument(atPath path: URL,
+                          contentType: ContentType,
+                          additionalNote: String = "") throws -> Bool {
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: path.path) {
       throw TonnerreIndexError.fileNotExist(atPath: path.path)
     }
     var addResult: Bool = false
     autoreleasepool {
-      let fileName = path.deletingPathExtension().lastPathComponent
-      let fileNameLatinized = fileName.applyingTransform(.toLatin, reverse: false)?.applyingTransform(.stripDiacritics, reverse: false)?.applyingTransform(.stripCombiningMarks, reverse: false) ?? fileName
       let fileURL = path as CFURL
       guard
         let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue()
       else { addResult = false; return }
-      let indexNotes = Set([fileName, fileNameLatinized, additionalNote])
-      let addMethod: documentAddFunc = type == .nameOnly ? SKIndexAddDocumentWithText : SKIndexAddDocument
-      let textContent: CFString? = type == .nameOnly ? indexNotes.joined(separator: " ") as CFString : nil
-      addResult = addMethod(indexFile, document, textContent, false)
+      let fileName = path.deletingPathExtension().lastPathComponent
+      let fileNameLatinized = fileName
+        .applyingTransform(.toLatin, reverse: false)?
+        .applyingTransform(.stripDiacritics, reverse: false)?
+        .applyingTransform(.stripCombiningMarks, reverse: false) ?? fileName
+      
+      if contentType == .fileName {
+        let indexNotes = Set([fileName, fileNameLatinized, additionalNote]).filter { !$0.isEmpty }
+        let textContent = indexNotes.joined(separator: " ") as CFString
+        addResult = SKIndexAddDocumentWithText(indexFile, document, textContent, true)
+      } else {
+        addResult = SKIndexAddDocument(indexFile, document, nil, true)
+      }
+      
       SKIndexFlush(indexFile)
     }
     return addResult
@@ -96,12 +144,12 @@ public struct TonnerreIndex {
    - Parameter timeLimit: the number of seconds the search can run in the maximum. 1 by default
    - Returns: An array of URLs to the found documents
   */
-  public func search(query: String, limit: Int, options: TonnerreSearchOptions, timeLimit: Double = 1) -> [URL] {
+  public func search(query: String, limit: Int, options: SearchOptions = .default, timeLimit: Double = 1) -> [URL] {
     let searchQuery = SKSearchCreate(indexFile, query as CFString, options.rawValue).takeRetainedValue()
     var foundDocIDs = [SKDocumentID](repeating: 0, count: limit)
     var foundScores = [Float](repeating: 0, count: limit)
     var foundCount: CFIndex = 0
-    let _ = SKSearchFindMatches(searchQuery, limit as CFIndex, &foundDocIDs, &foundScores, timeLimit as CFTimeInterval, &foundCount)
+    _ = SKSearchFindMatches(searchQuery, limit as CFIndex, &foundDocIDs, &foundScores, timeLimit as CFTimeInterval, &foundCount)
     guard foundCount > 0 else { return [] }
     var foundURLs = [Unmanaged<CFURL>?](repeating: nil, count: foundCount)
     SKIndexCopyDocumentURLsForDocumentIDs(indexFile, foundCount, &foundDocIDs, &foundURLs)
@@ -136,6 +184,12 @@ public struct TonnerreIndex {
   
   /// Close the index file
   public func close() {
+    guard !closed else { return }
     SKIndexClose(indexFile)
+    closed = true
+  }
+  
+  deinit {
+    close()
   }
 }

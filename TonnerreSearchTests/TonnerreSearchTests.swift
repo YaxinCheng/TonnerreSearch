@@ -20,8 +20,8 @@ class TonnerreSearchTests: XCTestCase {
   override func setUp() {
     super.setUp()
     // Put setup code here. This method is called before the invocation of each test method in the class.
-    nameOnlyIndexFile = TonnerreIndex(filePath: nameOnlyIndexPath, indexType: .nameOnly, writable: true)
-    withContentIndexFile = TonnerreIndex(filePath: withContentIndexPath, indexType: .metadata, writable: true)
+    nameOnlyIndexFile = try! TonnerreIndex.create(path: nameOnlyIndexPath)
+    withContentIndexFile = try! TonnerreIndex.create(path: withContentIndexPath)
     XCTAssert(FileManager.default.fileExists(atPath: nameOnlyIndexPath))
     XCTAssert(FileManager.default.fileExists(atPath: withContentIndexPath))
   }
@@ -48,22 +48,22 @@ class TonnerreSearchTests: XCTestCase {
       assert(false, "File create failure")
     }
     do {
-      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path)
-      let withContentResult = try withContentIndexFile.addDocument(atPath: path)
+      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path, contentType: .fileName)
+      let withContentResult = try withContentIndexFile.addDocument(atPath: path, contentType: .fileContent)
       XCTAssert(nameOnlyResult, "name only add result")
       XCTAssert(withContentResult, "with content add result")
     } catch TonnerreIndexError.fileNotExist {
-      assert(false, "Cannot locate file")
+      XCTFail("Cannot locate the file")
     } catch {
-      assert(false, "Other error happened")
+      XCTFail("Other error happened")
     }
     defer {
       try? FileManager.default.removeItem(atPath: path)
     }
   }
   
-  func testSearch() {
-    let path = "/tmp/testFileWithCertainContentAvoidDuplicates.txt"
+  private func createFile(name: String) {
+    let path = "/tmp/\(name)"
     let fileContent = """
     To be, or not to be, that is the question:
     Whether 'tis nobler in the mind to suffer
@@ -76,29 +76,46 @@ class TonnerreSearchTests: XCTestCase {
     Devoutly to be wish'd. To die, to sleep;
     """.data(using: .utf8)!
     guard FileManager.default.createFile(atPath: path, contents: fileContent, attributes: nil) else {
-      assert(false, "File create failure")
+      removeFile(name: name)
+      XCTFail("File create failure")
+      return
     }
+  }
+  
+  private func removeFile(name: String) {
+    try? FileManager.default.removeItem(atPath: "/tmp/\(name)")
+  }
+  
+  func testSearchWithName() {
+    let fileName = "testFileWithCertainContentAvoidDuplicates.txt"
+    createFile(name: fileName)
+    defer { removeFile(name: fileName) }
     do {
-      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path)
-      let withContentResult = try withContentIndexFile.addDocument(atPath: path)
-      XCTAssert(nameOnlyResult, "name only add result")
-      XCTAssert(withContentResult, "with content add result")
-    } catch TonnerreIndexError.fileNotExist {
-      assert(false, "Cannot locate file")
+      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: "/tmp/\(fileName)", contentType: .fileName)
+      XCTAssertTrue(nameOnlyResult)
+      let shouldBeZero = nameOnlyIndexFile.search(query: "question", limit: 2)
+      XCTAssertEqual(shouldBeZero.count, 0)
+      let shouldNotBeZero = nameOnlyIndexFile.search(query: "testFile*", limit: 2)
+      XCTAssertNotEqual(shouldNotBeZero.count, 0)
     } catch {
-      assert(false, "Other error happened")
+      XCTFail(error.localizedDescription)
     }
-    defer {
-      try? FileManager.default.removeItem(atPath: path)
+  }
+  
+  func testSearchWithContent() {
+    let fileName = "testFileWithCertainContentAvoidDuplicates.txt"
+    createFile(name: fileName)
+    defer { removeFile(name: fileName) }
+    do {
+      let nameOnlyResult = try withContentIndexFile.addDocument(atPath: "/tmp/\(fileName)", contentType: .fileContent)
+      XCTAssertTrue(nameOnlyResult)
+      let shouldBeZero = withContentIndexFile.search(query: "duplicate", limit: 2)
+      XCTAssertEqual(shouldBeZero.count, 0)
+      let shouldNotBeZero = withContentIndexFile.search(query: "nobler", limit: 2)
+      XCTAssertNotEqual(shouldNotBeZero.count, 0)
+    } catch {
+      XCTFail(error.localizedDescription)
     }
-    let shouldBeZero = nameOnlyIndexFile.search(query: "question", limit: 2, options: .default)
-    XCTAssert(shouldBeZero.count == 0, "Name only search should return 0 result. Actual: \(shouldBeZero)")
-    let anotherZero = withContentIndexFile.search(query: "duplicate", limit: 2, options: .default)
-    XCTAssert(anotherZero.count == 0, "Content search should return 0 result. Actual: \(anotherZero)")
-    let anotherNonZero = withContentIndexFile.search(query: "nobler", limit: 2, options: .default)
-    XCTAssert(anotherNonZero.count != 0, "Content search should find at least one result. Actual: \(anotherNonZero)")
-    let shouldNotBeZero = nameOnlyIndexFile.search(query: "testFile*", limit: 2, options: .default)
-    XCTAssert(shouldNotBeZero.count != 0, "Name only search should find at least one result. Actual: \(shouldNotBeZero)")
   }
   
   func testRemove() {
@@ -108,12 +125,12 @@ class TonnerreSearchTests: XCTestCase {
       assert(false, "File create failure")
     }
     do {
-      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path)
+      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path, contentType: .fileName)
       XCTAssert(nameOnlyResult, "name only add result")
     } catch TonnerreIndexError.fileNotExist {
-      assert(false, "Cannot locate file")
+      XCTFail("Cannot locate file")
     } catch {
-      assert(false, "Other error happened")
+      XCTFail("Other error happened")
     }
     try? FileManager.default.removeItem(atPath: path)
     XCTAssert(nameOnlyIndexFile.removeDocument(atPath: path))
@@ -143,12 +160,12 @@ class TonnerreSearchTests: XCTestCase {
       assert(false, "File create failure")
     }
     do {
-      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path)
+      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: path, contentType: .fileName)
       XCTAssert(nameOnlyResult, "name only add result")
     } catch TonnerreIndexError.fileNotExist {
-      assert(false, "Cannot locate file")
+      XCTFail("Cannot locate file")
     } catch {
-      assert(false, "Other error happened")
+      XCTFail("Other error happened")
     }
     defer {
       try? FileManager.default.removeItem(atPath: path)

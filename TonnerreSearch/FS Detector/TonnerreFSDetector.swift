@@ -19,6 +19,7 @@ public class TonnerreFSDetector {
   private var stream: FSEventStreamRef! = nil
   private let streamCallBack: FSEventStreamCallback
   private let filterOptions: FilterOptions
+  private let eventIdNow: FSEventStreamEventId
   private let callback: ([event])->Void
   /**
   The type of data returned in the callback. (path, [eventFlag])
@@ -50,6 +51,7 @@ public class TonnerreFSDetector {
   public init(pathes: [String],
               filterOptions: FilterOptions = [],
               callback: @escaping (_ events: [event])->Void) {
+    eventIdNow = FSEventStreamEventId(kFSEventStreamEventIdSinceNow)
     self.callback = callback
     self.filterOptions = filterOptions
     monitoringPaths = pathes.map{ $0 as CFString } as CFArray
@@ -87,7 +89,7 @@ public class TonnerreFSDetector {
   private func constructStream() {
     let mySelf = Unmanaged.passRetained(self).toOpaque()// Convert `self` into a pointer, then keep to the context
     var context = FSEventStreamContext(version: 0, info: mySelf, retain: nil, release: nil, copyDescription: nil)
-    let lastEventID = UserDefaults.standard.value(forKey: "LastEventIDObserved") as? FSEventStreamEventId ?? FSEventStreamEventId(kFSEventStreamEventIdSinceNow)
+    let lastEventID = UserDefaults.standard.value(forKey: "LastEventIDObserved") as? FSEventStreamEventId ?? eventIdNow
     stream = FSEventStreamCreate(nil, self.streamCallBack, &context, self.monitoringPaths, lastEventID, 0, FSEventStreamCreateFlags(kFSEventStreamCreateFlagFileEvents))!
   }
   
