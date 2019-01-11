@@ -14,7 +14,6 @@ public final class TonnerreIndex {
   private let indexFile: SKIndex
   /// The path to the index file
   public let path: URL
-  private var closed: Bool = false
   
   private init(filePath: URL, indexFile: SKIndex) {
     self.path = filePath
@@ -53,9 +52,11 @@ public final class TonnerreIndex {
    Load a TonnerreIndex from a given path with a mode
    
    - parameter path: a path to a file location where the index can be created
-   - parameter mode: a mode if the instance is allowed to readOnly or can write to the index
+   - parameter mode: a mode if the instance is allowed to readOnly or can write to the index. By default, it is `readOnly`
    - throws: TonnerreIndexError.fileOpenError when trying to open an index with writeAndRead mode, while it is already opened by some other process
    - returns: an instance pointing to the index
+   - warning: Only single instance of `writeAndRead` mode is allowed. Trying to open several `writeAndRead`
+   instances will throw an exception
    */
   public static func open(path: String, mode: OpenMode = .readOnly) throws -> TonnerreIndex {
     let path = URL(fileURLWithPath: path)
@@ -66,9 +67,11 @@ public final class TonnerreIndex {
    Load a TonnerreIndex from a given path with a mode
    
    - parameter path: a path to a file location where the index can be created
-   - parameter mode: a mode if the instance is allowed to readOnly or can write to the index
+   - parameter mode: a mode if the instance is allowed to readOnly or can write to the index. By default, it is `readOnly`
    - throws: TonnerreIndexError.fileOpenError when trying to open an index with writeAndRead mode, while it is already opened by some other process
    - returns: an instance pointing to the index
+   - warning: Only single instance of `writeAndRead` mode is allowed. Trying to open several `writeAndRead`
+   instances will throw an exception
    */
   public static func open(path: URL, mode: OpenMode = .readOnly) throws -> TonnerreIndex {
     guard
@@ -180,16 +183,5 @@ public final class TonnerreIndex {
     let result = SKIndexRemoveDocument(indexFile, document)
     SKIndexCompact(indexFile)
     return result
-  }
-  
-  /// Close the index file
-  public func close() {
-    guard !closed else { return }
-    SKIndexClose(indexFile)
-    closed = true
-  }
-  
-  deinit {
-    close()
   }
 }

@@ -29,9 +29,9 @@ class TonnerreSearchTests: XCTestCase {
   override func tearDown() {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     do {
-      nameOnlyIndexFile.close()
+      nameOnlyIndexFile = nil
       try FileManager.default.removeItem(atPath: nameOnlyIndexPath)
-      withContentIndexFile.close()
+      withContentIndexFile = nil
       try FileManager.default.removeItem(atPath: withContentIndexPath)
     } catch {
       print("IndexFile failed to delete")
@@ -173,5 +173,14 @@ class TonnerreSearchTests: XCTestCase {
     let shouldFindOne = nameOnlyIndexFile.search(query: "zhong wen", limit: 2, options: .default)
     print(shouldFindOne)
     XCTAssert(shouldFindOne.count == 1, "Found one")
+  }
+  
+  func testCloseOpenedIndex() {
+    nameOnlyIndexFile = nil
+    do {
+      _ = try TonnerreIndex.open(path: nameOnlyIndexPath)
+    } catch {
+      XCTFail(error.localizedDescription)
+    }
   }
 }

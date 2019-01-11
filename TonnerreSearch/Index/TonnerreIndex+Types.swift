@@ -25,7 +25,14 @@ public extension TonnerreIndex {
   
   /// Open an index readonly or writable
   public enum OpenMode {
+    /// Open the index with readOnly mode
+    /// - note: in this mode, all `writeDocument` and
+    /// `removeDocument` actions will be ignored
     case readOnly
+    /// Open the index with write and read mode
+    /// - note: only one instance with `writeAndRead` mode is allowed
+    /// . Trying to open a second instance with this mode would throw
+    /// an error
     case writeAndRead
     
     var rawValue: Bool {

@@ -35,8 +35,8 @@ public class TonnerreFSDetector {
    - Parameter events: The events detected by this detector
   */
   public convenience init(pathes: String...,
-    filterOptions: FilterOptions = [],
-    callback: @escaping (_ events: [event])->Void) {
+                          filterOptions: FilterOptions = [],
+                          callback: @escaping (_ events: [event])->Void) {
     self.init(pathes: pathes, filterOptions: filterOptions, callback: callback)
   }
   

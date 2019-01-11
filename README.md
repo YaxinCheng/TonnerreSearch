@@ -9,7 +9,7 @@ TonnerreSearch provides pure Swift interface, with C code running underneath it 
 ## Platform
 
 - macOS (with Swift version after 4.0)
-  - Tested on High Sierra, should be working with Mojave
+  - Tested on High Sierra and Mojave
 
 ## Installation
 
@@ -43,39 +43,49 @@ This part introduces the basic index interfaces, and things need to be warned
 Following APIs are provided:
 
 ```swift
-init?(filePath: String, indexType: TonnerreIndexType, writable: Bool)
-init?(filePath: URL, indexType: TonnerreIndexType, writable: Bool)
-func addDocument(atPath path: String, additionalNote: String) throws -> Bool
-func addDocument(atPath path: URL, additionalNote: String) throws -> Bool
+static func create(path: String) throws -> TonnerreIndex
+static func create(path: URL) throws -> TonnerreIndex
+static func open(path: String, mode: OpenMode) throws -> TonnerreIndex
+static func open(path: URL, mode: OpenMode) throws -> TonnerreIndex
+func addDocument(atPath path: String, contentType: ContentType, additionalNote: String) throws -> Bool
+func addDocument(atPath path: URL, contentType: ContentType, additionalNote: String) throws -> Bool
 func removeDocument(atPath path: String) -> Bool
 func removeDocument(atPath path: URL) -> Bool
-func search(query: String, limit: Int, options: TonnerreSearchOptions..., timeLimit: Double) -> [URL]
+func search(query: String, limit: Int, options: SearchOptions, timeLimit: Double) -> [URL]
 ```
 
-When user firstly initialize an instance of `TonnerreIndex`, it creates an index file at the given `filePath`. If the path is missing, a fatal error will occur. The second time, with the same `filePath`, `TonnerreIndex` will be initialized with the existing index file, instead of write over the original one.
+When user firstly initialize an instance of `TonnerreIndex` with `create(path:)`, it creates an index file at the given `path`. If the path is missing, a fatal error will occur. The second time, with the same `path`, `TonnerreIndex` can initialize with the existing index file with `open(path:mode:)` function, instead of write over the original one.
 
 > Note: one index file cannot have more than 1 writable instance. Otherwise, it will crash
 
 Only **writable** instances can `addDocument` or `removeDocument` from the index file, however, `TonnerreIndex` is thread-safe. The search behaviour would not interfere the adding/removing process.
 
-#### TonnerreIndexOptions.swift
+#### TonnerreIndex+Types.swift
 
 ```swift
 // Used during a search, one or more options may be selected
-public enum TonnerreSearchOptions: SKSearchOptions {
-    case `default`// Most default behaviour, space means AND, with relevance score
-    case noRelevanceScore// Search without relevance score
-    case spaceMeansOR// Space means OR instead of AND
-    case findSimilar// Finds documents similar to the query, ignoring all search operators like AND OR
+public struct TonnerreSearchOptions: OptionSet {
+    public static let `default`// Most default behaviour, space means AND, with relevance score
+    public static let noRelevanceScore// Search without relevance score
+    public static let spaceMeansOR// Space means OR instead of AND
+    public static let findSimilar// Finds documents similar to the query, ignoring all search operators like AND OR
 }
 // A swifty wrapper for SKSearchOptions. For more details, see (https://developer.apple.com/documentation/coreservices/sksearchoptions)
 ```
 
 ```swift
+// Open an existing index file
+public enum OpenMode {
+    case readOnly
+    case writeAndRead
+}
+```
+
+```swift
 // Used when creaing an index
-public enum TonnerreIndexType {
-  case nameOnly // index file only keeps file names as the contents
-  case metadata // index file imports the content extractor from Spotlight, and keeps the document contents in the file
+public enum ContentType {
+  case fileName // index file only keeps file names as the index contents
+  case fileContent // index file imports the content extractor from Spotlight, and keeps the document contents in the file
 }
 // Only one of them can be chosen
 ```
@@ -90,6 +100,8 @@ Throw out an error when the file to index does not exist
 
 ```swift
 public enum TonnerreIndexError: Error {
+    case fileCreateError// occured during create method
+    case fileOpenError// occured dur
     case fileNotExist(atPath: String)
 }
 ```
@@ -119,31 +131,20 @@ Really straightforward, users need to pass a few path and a callback function to
 #### TonnerreFSEvent.swift
 
 ```swift
-enum TonnerreFSEvent {// Different types of File System Event
-  case created       
-  case removed       
-  case inodeModified 
-  case renamed       
-  case modified      
-  case finderModified
-  case changeOwner   
-  case XattrModified 
-  case isFile        
-  case isDirectory   
-  case isSymlink     
-  
-  // Tear apart a UInt32 type of flags to an array of TonnerreFSEvent
-  static func segregate(flag: UInt32) -> [TonnerreFSEvent]
+public struct TonnerreFSEvent: OptionSet {// Different types of File System Event
+  public static let created       
+  public static let removed       
+  public static let inodeModified 
+  public static let renamed       
+  public static let modified      
+  public static let finderModified
+  public static let changeOwner   
+  public static let XattrModified 
+  public static let isFile        
+  public static let isDirectory   
+  public static let isSymlink     
 }
 ```
-> contains function in Array<TonnerreFSEvent> is overrided for a better performance
-
-```swift
-public extension Array where Element == TonnerreFSEvent {
-    public func contains(_ element: Element) -> Bool
-}
-```
-
 
 ## License
 
