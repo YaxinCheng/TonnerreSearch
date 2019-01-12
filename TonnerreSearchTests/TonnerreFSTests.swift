@@ -18,7 +18,7 @@ class TonnerreFSTests: XCTestCase {
   override func setUp() {
     try! FileManager.default.createDirectory(atPath: testFolder, withIntermediateDirectories: true, attributes: nil)
     fsDetector = TonnerreFSDetector(pathes: testFolder,
-                                    filterOptions: [.inHidden, .inPackage, .hidden],
+                                    filterOptions: [.skipHiddenDescendants, .skipPakcageDescendants, .skipHiddenItems],
                                     callback: fileEventsOccured)
     fsDetector.start()
   }
@@ -110,9 +110,27 @@ class TonnerreFSTests: XCTestCase {
     let hidden = FilterOptions(rawValue: 1)
     let inPackage = FilterOptions(rawValue: 2)
     let inHidden = FilterOptions(rawValue: 4)
-    let hiddenAndInPackage: FilterOptions = [.hidden, inPackage]
+    let hiddenAndInPackage: FilterOptions = [.skipHiddenItems, inPackage]
     XCTAssert(hiddenAndInPackage.contains([hidden, inPackage]))
     XCTAssertFalse(hiddenAndInPackage.contains(inHidden))
+  }
+  
+  func testTrashItem() {
+    fsDetector.stop()
+    let path = testFolder + "/randomFileForTesting"
+    _ = FileManager.default.createFile(atPath: path, contents: "something".data(using: .utf8)!, attributes: nil)
+    fsDetector.start()
+    try? FileManager.default.trashItem(at: URL(fileURLWithPath: path), resultingItemURL: nil)
+    let _ = expectation(forNotification: .TonnerreFSEventArrives, object: nil) {
+      guard
+        let info = $0.userInfo as? [String: [TonnerreFSDetector.event]],
+        let eventList = info["events"]
+      else { return false }
+      let selectedEvents = eventList.filter { $0.path == path }
+      return selectedEvents.map { $0.flags }.map { $0.contains(.renamed) }.reduce(false) { $0 || $1 }
+    }
+    waitForExpectations(timeout: 6, handler: nil)
+    try? FileManager.default.removeItem(atPath: path)
   }
 }
 

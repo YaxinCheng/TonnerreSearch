@@ -69,11 +69,11 @@ public class TonnerreFSDetector {
         filteredEvents = zip(filePaths, fileFlags).filter {
           let fileURL = URL(fileURLWithPath: $0.0)
           return
-            !(mySelf.filterOptions.contains(.hidden) && fileURL.isHidden)
+            !(mySelf.filterOptions.contains(.skipHiddenItems) && fileURL.isHidden)
               &&
-            !(mySelf.filterOptions.contains(.inPackage) && fileURL.isInPackage)
+            !(mySelf.filterOptions.contains(.skipPakcageDescendants) && fileURL.isInPackage)
               &&
-            !(mySelf.filterOptions.contains(.inHidden) && fileURL.isInHidden)
+            !(mySelf.filterOptions.contains(.skipHiddenDescendants) && fileURL.isInHidden)
         }
       }
       let lastEventID = eventIds[numEvents - 1]
@@ -113,9 +113,7 @@ public class TonnerreFSDetector {
     stream = nil
   }
   
-  /**
-   Destructor which stops the stream
-  */
+  /// Destructor which stops the stream
   deinit {
     stop()
   }

@@ -18,9 +18,9 @@ public struct FilterOptions: OptionSet {
   }
   
   /// Filter out all the hidden files
-  public static let hidden    = FilterOptions(rawValue: 1)//1
+  public static let skipHiddenItems    = FilterOptions(rawValue: 1)//1
   /// Filter out all the paths directing inside a package
-  public static let inPackage = FilterOptions(rawValue: 2)//10
+  public static let skipPakcageDescendants = FilterOptions(rawValue: 2)//10
   /// Filter out all the paths directing inside a hidden path
-  public static let inHidden  = FilterOptions(rawValue: 4)//100
+  public static let skipHiddenDescendants  = FilterOptions(rawValue: 4)//100
 }

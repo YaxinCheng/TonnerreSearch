@@ -17,10 +17,14 @@ public extension TonnerreIndex {
       self.rawValue = rawValue
     }
     
-    public static let `default`        = SearchOptions(rawValue: 0)
-    public static let noRelevanceScore = SearchOptions(rawValue: 1)
-    public static let spaceMeansOR     = SearchOptions(rawValue: 2)
-    public static let findSimilar      = SearchOptions(rawValue: 4)
+    private init(rawValue: Int) {
+      self.init(rawValue: SKSearchOptions(rawValue))
+    }
+    
+    public static let `default`        = SearchOptions(rawValue: kSKSearchOptionDefault)
+    public static let noRelevanceScore = SearchOptions(rawValue: kSKSearchOptionNoRelevanceScores)
+    public static let spaceMeansOR     = SearchOptions(rawValue: kSKSearchOptionSpaceMeansOR)
+    public static let findSimilar      = SearchOptions(rawValue: kSKSearchOptionFindSimilar)
   }
   
   /// Open an index readonly or writable

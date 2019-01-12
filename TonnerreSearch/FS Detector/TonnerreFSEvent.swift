@@ -21,15 +21,22 @@ public struct TonnerreFSEvents: OptionSet {
     self.rawValue = rawValue
   }
   
-  public static let created        = TonnerreFSEvents(rawValue: 0x100)
-  public static let removed        = TonnerreFSEvents(rawValue: 0x200)
-  public static let inodeModified  = TonnerreFSEvents(rawValue: 0x400)
-  public static let renamed        = TonnerreFSEvents(rawValue: 0x800)
-  public static let modified       = TonnerreFSEvents(rawValue: 0x1000)
-  public static let finderModified = TonnerreFSEvents(rawValue: 0x2000)
-  public static let changeOwner    = TonnerreFSEvents(rawValue: 0x4000)
-  public static let XattrModified  = TonnerreFSEvents(rawValue: 0x8000)
-  public static let isFile         = TonnerreFSEvents(rawValue: 0x10000)
-  public static let isDirectory    = TonnerreFSEvents(rawValue: 0x20000)
-  public static let isSymlink      = TonnerreFSEvents(rawValue: 0x40000)
+  private init(rawValue: Int) {
+    self.init(rawValue: UInt32(rawValue))
+  }
+  
+  public static let created        = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemCreated)
+  public static let removed        = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemRemoved)
+  public static let inodeModified  = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemInodeMetaMod)
+  public static let renamed        = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemRenamed)
+  public static let modified       = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemModified)
+  public static let finderModified = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemFinderInfoMod)
+  public static let changeOwner    = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemChangeOwner)
+  public static let XattrModified  = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemXattrMod)
+  public static let isFile         = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemIsFile)
+  public static let isDirectory    = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemIsDir)
+  public static let isSymlink      = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemIsSymlink)
+  public static let isHardlink     = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemIsHardlink)
+  public static let isLastHardlink = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemIsLastHardlink)
+  public static let cloned         = TonnerreFSEvents(rawValue: kFSEventStreamEventFlagItemCloned)
 }
