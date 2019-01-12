@@ -82,12 +82,11 @@ public enum OpenMode {
 ```
 
 ```swift
-// Used when creaing an index
+// Used when indexing file into the index
 public enum ContentType {
   case fileName // index file only keeps file names as the index contents
   case fileContent // index file imports the content extractor from Spotlight, and keeps the document contents in the file
 }
-// Only one of them can be chosen
 ```
 
 TonnerreIndexType.metadata uses the default spotlight extractor to read document contents, users have no control of how the content should be read or what should be read. 
