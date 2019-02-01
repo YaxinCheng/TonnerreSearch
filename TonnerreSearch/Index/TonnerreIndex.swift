@@ -120,14 +120,14 @@ public final class TonnerreIndex {
       guard
         let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue()
       else { addResult = false; return }
-      let fileName = path.deletingPathExtension().lastPathComponent
-      let fileNameLatinized = fileName
-        .applyingTransform(.toLatin, reverse: false)?
-        .applyingTransform(.stripDiacritics, reverse: false)?
-        .applyingTransform(.stripCombiningMarks, reverse: false) ?? fileName
-      
       if contentType == .fileName {
-        let indexNotes = Set([fileName, fileNameLatinized, additionalNote]).filter { !$0.isEmpty }
+        let fileName = path.lastPathComponent
+          .trimmingCharacters(in: .whitespacesAndNewlines)
+        let fileNameLatinized = fileName
+          .applyingTransform(.toLatin, reverse: false)?
+          .applyingTransform(.stripDiacritics, reverse: false)?
+          .applyingTransform(.stripCombiningMarks, reverse: false) ?? fileName
+        let indexNotes = Set([fileName, fileNameLatinized, additionalNote].filter { !$0.isEmpty })
         let textContent = indexNotes.joined(separator: " ") as CFString
         addResult = SKIndexAddDocumentWithText(indexFile, document, textContent, true)
       } else {
