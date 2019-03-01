@@ -49,7 +49,13 @@ public extension TonnerreIndex {
   
   /// Either adding file name or file content data to the index
   public enum ContentType {
+    /// full file name with extensions
     case fileName
+    /// file name without extensions
+    ///
+    /// `Safari.app` -> `Safari`
+    case cleanedFileName
+    /// File content
     case fileContent
   }
 }

@@ -183,4 +183,25 @@ class TonnerreSearchTests: XCTestCase {
       XCTFail(error.localizedDescription)
     }
   }
+  
+  func testSearchByExtension() {
+    let fileName = "testFileWithCertainContentAvoidDuplicates.txt"
+    createFile(name: fileName)
+    let fileNameWithTxt = "testWithtxtFileName"
+    createFile(name: fileNameWithTxt)
+    defer {
+      removeFile(name: fileName)
+      removeFile(name: fileNameWithTxt)
+    }
+    do {
+      let nameOnlyResult = try nameOnlyIndexFile.addDocument(atPath: "/tmp/\(fileName)", contentType: .fileName)
+      XCTAssertTrue(nameOnlyResult)
+      let addFileWithTxt = try nameOnlyIndexFile.addDocument(atPath: "/tmp/\(fileNameWithTxt)", contentType: .fileName)
+      XCTAssertTrue(addFileWithTxt)
+      let shouldNotBeZero = nameOnlyIndexFile.search(query: "*.txt", limit: 2)
+      XCTAssertEqual(shouldNotBeZero.count, 1)
+    } catch {
+      XCTFail(error.localizedDescription)
+    }
+  }
 }

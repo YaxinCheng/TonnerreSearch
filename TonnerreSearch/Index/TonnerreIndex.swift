@@ -120,9 +120,14 @@ public final class TonnerreIndex {
       guard
         let document = SKDocumentCreateWithURL(fileURL)?.takeRetainedValue()
       else { addResult = false; return }
-      if contentType == .fileName {
-        let fileName = path.lastPathComponent
-          .trimmingCharacters(in: .whitespacesAndNewlines)
+      if contentType == .fileName || contentType == .cleanedFileName {
+        let rawFileName: String
+        if contentType == .fileName {
+          rawFileName = path.lastPathComponent
+        } else {
+          rawFileName = path.deletingPathExtension().lastPathComponent
+        }
+        let fileName = rawFileName.trimmingCharacters(in: .whitespacesAndNewlines)
         let fileNameLatinized = fileName
           .applyingTransform(.toLatin, reverse: false)?
           .applyingTransform(.stripDiacritics, reverse: false)?
