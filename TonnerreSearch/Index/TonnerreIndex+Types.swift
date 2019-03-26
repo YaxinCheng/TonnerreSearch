@@ -10,7 +10,7 @@ import Foundation
 
 public extension TonnerreIndex {
   /// Search options used for searching documents from the index
-  public struct SearchOptions: OptionSet {
+  struct SearchOptions: OptionSet {
     public var rawValue: SKSearchOptions
     
     public init(rawValue: SKSearchOptions) {
@@ -28,7 +28,7 @@ public extension TonnerreIndex {
   }
   
   /// Open an index readonly or writable
-  public enum OpenMode {
+  enum OpenMode {
     /// Open the index with readOnly mode
     /// - note: in this mode, all `writeDocument` and
     /// `removeDocument` actions will be ignored
@@ -48,7 +48,7 @@ public extension TonnerreIndex {
   }
   
   /// Either adding file name or file content data to the index
-  public enum ContentType {
+  enum ContentType {
     /// full file name with extensions
     case fileName
     /// file name without extensions

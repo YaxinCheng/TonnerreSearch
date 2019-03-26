@@ -186,7 +186,7 @@
 				TargetAttributes = {
 					14A9F5F3208D006600DF3FC9 = {
 						CreatedOnToolsVersion = 9.3;
-						LastSwiftMigration = 0930;
+						LastSwiftMigration = 1020;
 					};
 					14A9F5FC208D006600DF3FC9 = {
 						CreatedOnToolsVersion = 9.3;
@@ -200,6 +200,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 14A9F5EA208D006600DF3FC9;
 			productRefGroup = 14A9F5F5208D006600DF3FC9 /* Products */;
@@ -406,7 +407,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -432,7 +433,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ycheng.TonnerreSearch;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
